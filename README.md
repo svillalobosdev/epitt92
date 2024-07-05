@@ -6,7 +6,7 @@ Senior Software Engineer
 -----------------
 
 * 🧠  I like to learn new technology and challenges.
-* 🤝  I'm open to collaborating on interesting projects as a engineer.
+* 🤝  I'm open to collaborating on interesting projects as an engineer.
 
 ### Skills
 
