@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cartridge_basiclti_link xmlns="http://www.imsglobal.org/xsd/imslticc_v1p3" xmlns:blti="http://www.imsglobal.org/xsd/imsbasiclti_v1p3" xmlns:lticm="http://www.imsglobal.org/xsd/imslticc_v1p3" xmlns:lticp="http://www.imsglobal.org/xsd/imslticc_v1p3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imslticc_v1p3 http://www.imsglobal.org/profile/cc/imslticc_v1p3.xsd">
+    <blti:title>Custom Home Page</blti:title>
+    <blti:description>A custom home page for Canvas LMS</blti:description>
+    <blti:launch_url>https://dew-tour-grant-mint-dapp.vercel.app</blti:launch_url>
+    <blti:secure_launch_url>https://dew-tour-grant-mint-dapp.vercel.app/index.html</blti:secure_launch_url>
+    <blti:extensions platform="canvas.instructure.com">
+        <lticm:property name="tool_id">custom_home_page</lticm:property>
+        <lticm:property name="privacy_level">public</lticm:property>
+        <lticm:property name="domain">dew-tour-grant-mint-dapp.vercel.app</lticm:property>
+        <lticm:property name="course_navigation"> 
+            <lticm:property name="text">Custom Home Page</lticm:property>
+            <lticm:property name="visibility">admins</lticm:property>
+            <lticm:property name="default">enabled</lticm:property>
+        </lticm:property>
+    </blti:extensions>
+</cartridge_basiclti_link>
