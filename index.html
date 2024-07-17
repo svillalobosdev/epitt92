@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courses Homepage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .module {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+        }
+        .completion-bar {
+            height: 0.5rem;
+            background-color: #d1d5db;
+            border-radius: 0.375rem;
+        }
+        .completed {
+            background-color: #4f46e5;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="container mx-auto">
+        <h1 class="text-2xl font-bold mb-6">Course Lessons</h1>
+
+        <!-- Module 1 -->
+        <div class="module mb-6">
+            <div class="p-4">
+                <button onclick="toggleModule('module1')" class="w-full text-left">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-semibold">L1: Identify Responses to Sound</span>
+                        <span class="text-sm text-gray-500">Completed</span>
+                    </div>
+                    <div class="completion-bar mt-2">
+                        <div class="w-full completion-bar completed"></div>
+                    </div>
+                </button>
+            </div>
+            <div id="module1" class="hidden p-4">
+                <ul>
+                    <li class="mb-2">
+                        <input type="checkbox" class="mr-2" checked disabled> L1.a Identify Responses to Sounds
+                    </li>
+                    <li class="mb-2">
+                        <input type="checkbox" class="mr-2" checked disabled> L1.b Teaching Your Child to Listen
+                    </li>
+                    <li class="mb-2">
+                        <input type="checkbox" class="mr-2" checked disabled> L1.c Listening to Spoken Language
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Module 2 -->
+        <div class="module mb-6">
+            <div class="p-4">
+                <button onclick="toggleModule('module2')" class="w-full text-left">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-semibold">L2: The Six Ling Sounds</span>
+                        <span class="text-sm text-gray-500">50%</span>
+                    </div>
+                    <div class="completion-bar mt-2">
+                        <div class="w-1/2 completion-bar completed"></div>
+                    </div>
+                </button>
+            </div>
+            <div id="module2" class="hidden p-4">
+                <ul>
+                    <li class="mb-2">
+                        <input type="checkbox" checked disabled class="mr-2"> L2.a Six Ling Sounds Overview
+                    </li>
+                    <li class="mb-2">
+                        <input type="checkbox" disabled class="mr-2"> L2.b Six Ling Sounds Overview
+                    </li>
+                    <!-- Add more lessons as needed -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- Module 3 -->
+        <div class="module">
+            <div class="p-4">
+                <button onclick="toggleModule('module3')" class="w-full text-left">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-semibold">L3: Understanding My Child's Audiogram</span>
+                        <span class="text-sm text-gray-500">Not Started</span>
+                    </div>
+                    <div class="completion-bar mt-2">
+                        <div class="w-0 completion-bar"></div>
+                    </div>
+                </button>
+            </div>
+            <div id="module3" class="hidden p-4">
+                <ul>
+                    <li class="mb-2">
+                        <input type="checkbox" disabled class="mr-2"> L3.a Understanding Audiograms
+                    </li>
+                    <!-- Add more lessons as needed -->
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleModule(id) {
+            const module = document.getElementById(id);
+            if (module.classList.contains('hidden')) {
+                module.classList.remove('hidden');
+            } else {
+                module.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
