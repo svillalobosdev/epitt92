@@ -1,117 +1,1649 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Courses Homepage</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Model Configurator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/RGBELoader.js"></script>
     <style>
-        .module {
-            border: 1px solid #e5e7eb;
-            border-radius: 0.375rem;
+        body { margin: 0; background-color: transparent; }
+        #viewer-container {
+            width: 1920px;
+            height: 600px;
+            position: relative;
         }
-        .completion-bar {
-            height: 0.5rem;
-            background-color: #d1d5db;
-            border-radius: 0.375rem;
-        }
-        .completed {
-            background-color: #4f46e5;
-        }
+        canvas { display: block; }
     </style>
 </head>
-<body class="bg-gray-100 p-6">
-    <div class="container mx-auto">
-        <h1 class="text-2xl font-bold mb-6">Course Lessons</h1>
+<body>
+    <div id="viewer-container"></div>
 
-        <!-- Module 1 -->
-        <div class="module mb-6">
-            <div class="p-4">
-                <button onclick="toggleModule('module1')" class="w-full text-left">
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-semibold">L1: Identify Responses to Sound</span>
-                        <span class="text-sm text-gray-500">Completed</span>
-                    </div>
-                    <div class="completion-bar mt-2">
-                        <div class="w-full completion-bar completed"></div>
-                    </div>
-                </button>
-            </div>
-            <div id="module1" class="hidden p-4">
-                <ul>
-                    <li class="mb-2">
-                        <input type="checkbox" class="mr-2" checked disabled> L1.a Identify Responses to Sounds
-                    </li>
-                    <li class="mb-2">
-                        <input type="checkbox" class="mr-2" checked disabled> L1.b Teaching Your Child to Listen
-                    </li>
-                    <li class="mb-2">
-                        <input type="checkbox" class="mr-2" checked disabled> L1.c Listening to Spoken Language
-                    </li>
-                </ul>
-            </div>
+    <form id="configurator">
+        <!-- Shape Key Controls -->
+        <h3>Enter Measurements</h3>
+        <label for="width1">Width (mm):</label>
+        <input type="range" id="size-width" data-configurator-value="width1"name="Width (mm)" min="1200" max="3500" step="1" value="1200">
+        <label for="height1">Height (mm):</label>
+        <input type="range" id="size-height" data-configurator-value="height1" name="Height (mm)" min="800" max="2600" step="1" value="800">
+
+<!-- Transom Controls -->
+<h3>Transom Height</h3>
+<label for="transom-up"> Transom Up:</label>
+<input type="range" id="transom-up" data-configurator-value="transom_up" name="Transom Up" min="0" max="100" step="1" value="0">
+
+<label for="transom-down"> Transom Down:</label>
+<input type="range" id="transom-down" data-configurator-value="transom_down" name="Transom Down" min="0" max="100" step="1" value="0">
+
+<!-- Mullion A Controls -->
+<h3>Mullion Width (A)</h3>
+<label for="mullion-left-a"> Mullion Left A:</label>
+<input type="range" id="mullion-left-a" data-configurator-value="mullion_left_a" name="Mullion Left A" min="0" max="100" step="1" value="0">
+
+<label for="mullion-right-a"> Mullion Right A:</label>
+<input type="range" id="mullion-right-a" data-configurator-value="mullion_right_a" name="Mullion Right A" min="0" max="100" step="1" value="0">
+
+<!-- Mullion B Controls -->
+<h3>Mullion Width (B)</h3>
+<label for="mullion-left-b"> Mullion Left B:</label>
+<input type="range" id="mullion-left-b" data-configurator-value="mullion_left_b" name="Mullion Left B" min="0" max="100" step="1" value="0">
+
+<label for="mullion-right-b"> Mullion Right B:</label>
+<input type="range" id="mullion-right-b" data-configurator-value="mullion_right_b" name="Mullion Right B" min="0" max="100" step="1" value="0">
+
+<!-- Mullion C Controls -->
+<h3>Mullion Width (C)</h3>
+<label for="mullion-left-c"> Mullion Left C:</label>
+<input type="range" id="mullion-left-c" data-configurator-value="mullion_left_c" name="Mullion Left C" min="0" max="100" step="1" value="0">
+
+<label for="mullion-right-c"> Mullion Right C:</label>
+<input type="range" id="mullion-right-c" data-configurator-value="mullion_right_c" name="Mullion Right C" min="0" max="100" step="1" value="0">
+
+        <!-- Frame Material Variants -->
+        <h3>Frame Colour</h3>
+        <div id="frameVariant" data-3d-title="Frame Colour">
+    <button type="button" value="Solid_White" data-configurator-value="Solid_White_(9003)">Solid White</button>
+    <button type="button" value="White_Woodgrain" data-configurator-value="White_Woodgrain">White Woodgrain</button>
+    <button type="button" value="Cream_Woodgrain" data-configurator-value="Cream_Woodgrain">Cream Woodgrain</button>
+    <button type="button" value="Ulti_Matt_Black" data-configurator-value="Ulti_Matt_Black">Ulti Matt Black</button>
+    <button type="button" value="Black_Brown" data-configurator-value="Black_Brown">Black Brown</button>
+    <button type="button" value="Blue" data-configurator-value="Blue">Blue</button>
+    <button type="button" value="Dark_Green" data-configurator-value="Dark_Green">Dark Green</button>
+    <button type="button" value="Bronze_Platin" data-configurator-value="Bronze_Platin">Bronze Platin</button>
+    <button type="button" value="Flemish_Gold" data-configurator-value="Flemish_Gold">Flemish Gold</button>
+    <button type="button" value="Trompet" data-configurator-value="Trompet">Trompet</button>
+    <button type="button" value="Gale_Grey_Finesse" data-configurator-value="Gale_Grey_Finesse">Gale Grey Finesse</button>
+    <button type="button" value="Anthracite_Woodgrain_Grey" data-configurator-value="Anthracite_Woodgrain_Grey">Anthracite Woodgrain Grey</button>
+    <button type="button" value="Anthracite_Smooth_Grey" data-configurator-value="Anthracite_Smooth_Grey">Anthracite Smooth Grey</button>
+    <button type="button" value="Slate_Grey" data-configurator-value="Slate_Grey">Slate Grey</button>
+    <button type="button" value="Basalt_Grey" data-configurator-value="Basalt_Grey">Basalt Grey</button>
+    <button type="button" value="Balmoral" data-configurator-value="Balmoral">Balmoral</button>
+    <button type="button" value="Pebble_Grey" data-configurator-value="Pebble_Grey">Pebble Grey</button>
+    <button type="button" value="Silver_Grey" data-configurator-value="7155_Silver_Grey">Silver Grey</button>
+    <button type="button" value="Grey_Aluminium" data-configurator-value="Grey_Aluminium">Grey Aluminium</button>
+    <button type="button" value="Claystone" data-configurator-value="Claystone">Claystone</button>
+    <button type="button" value="Chartwell_Green" data-configurator-value="Chartwell_Green">Chartwell Green</button>
+    <button type="button" value="Sage" data-configurator-value="Sage">Sage</button>
+    <button type="button" value="Agate_Grey" data-configurator-value="Agate_Grey">Agate Grey</button>
+    <button type="button" value="Sheffield_Oak_Alpine" data-configurator-value="Sheffield_Oak_Alpine">Sheffield Oak Alpine</button>
+    <button type="button" value="Sheffield_Oak_Concrete" data-configurator-value="Sheffield_Oak_Concrete">Sheffield Oak Concrete</button>
+    <button type="button" value="Anteak" data-configurator-value="Anteak">Anteak</button>
+    <button type="button" value="Turner_Oak_Malt" data-configurator-value="Turner_Oak_Malt">Turner Oak Malt</button>
+    <button type="button" value="Irish_Oak" data-configurator-value="Irish_Oak">Irish Oak</button>
+    <button type="button" value="Oregon" data-configurator-value="Oregon">Oregon</button>
+    <button type="button" value="Cedar" data-configurator-value="Cedar">Cedar</button>
+    <button type="button" value="Golden_Oak" data-configurator-value="Golden_Oak">Golden Oak</button>
+    <button type="button" value="Mahogany" data-configurator-value="Mahogany">Mahogany</button>
+    <button type="button" value="Sapeli" data-configurator-value="Sapeli">Sapeli</button>
+    <button type="button" value="Rosewood" data-configurator-value="Rosewood">Rosewood</button>
+    <button type="button" value="Dark_Red" data-configurator-value="Dark_Red">Dark Red</button>
+    <button type="button" value="Burgundy" data-configurator-value="Burgundy">Burgundy</button>
+    <button type="button" value="White_Woodgrain_On_White" data-configurator-value="White_Woodgrain_on_White">White Woodgrain On White</button>
+    <button type="button" value="Cream_Woodgrain_On_White" data-configurator-value="Cream_Woodgrain_on_White">Cream Woodgrain On White</button>
+    <button type="button" value="Ulti_Matt_Black_On_White" data-configurator-value="Ulti_Matt_Black_on_White">Ulti Matt Black On White</button>
+    <button type="button" value="Black_Brown_On_White" data-configurator-value="Black_Brown_on_White">Black Brown On White</button>
+    <button type="button" value="Blue_On_White" data-configurator-value="Blue_on_White">Blue On White</button>
+    <button type="button" value="Dark_Green_On_White" data-configurator-value="Dark_Green_on_White">Dark Green On White</button>
+    <button type="button" value="Bronze_Platin_On_White" data-configurator-value="Bronze_Platin_on_White">Bronze Platin On White</button>
+    <button type="button" value="Flemish_Gold_On_White" data-configurator-value="Flemish_Gold_on_White">Flemish Gold On White</button>
+    <button type="button" value="Trompet_On_White" data-configurator-value="Trompet_on_White">Trompet On White</button>
+    <button type="button" value="Gale_Grey_Finesse_On_White" data-configurator-value="Gale_Grey_Finesse_on_White">Gale Grey Finesse On White</button>
+    <button type="button" value="Anthracite_Woodgrain_Grey_On_White" data-configurator-value="Anthracite_Woodgrain_Grey_on_White">Anthracite Woodgrain Grey On White</button>
+    <button type="button" value="Anthracite_Smooth_Grey_On_White" data-configurator-value="Anthracite_Smooth_Grey_on_White">Anthracite Smooth Grey On White</button>
+    <button type="button" value="Slate_Grey_On_White" data-configurator-value="Slate_Grey_on_White">Slate Grey On White</button>
+    <button type="button" value="Basalt_Grey_On_White" data-configurator-value="Basalt_Grey_on_White">Basalt Grey On White</button>
+    <button type="button" value="Balmoral_On_White" data-configurator-value="Balmoral_on_White">Balmoral On White</button>
+    <button type="button" value="Pebble_Grey_On_White" data-configurator-value="Pebble_Grey_on_White">Pebble Grey On White</button>
+    <button type="button" value="Silver_Grey_On_White" data-configurator-value="7155_Silver_Grey_on_White">Silver Grey On White</button>
+    <button type="button" value="Grey_Aluminium_On_White" data-configurator-value="Grey_Aluminium_on_White">Grey Aluminium On White</button>
+    <button type="button" value="Claystone_On_White" data-configurator-value="Claystone_on_White">Claystone On White</button>
+    <button type="button" value="Chartwell_Green_On_White" data-configurator-value="Chartwell_Green_on_White">Chartwell Green On White</button>
+    <button type="button" value="Sage_On_White" data-configurator-value="Sage_on_White">Sage On White</button>
+    <button type="button" value="Agate_Grey_On_White" data-configurator-value="Agate_Grey_on_White">Agate Grey On White</button>
+    <button type="button" value="Sheffield_Oak_Alpine_On_White" data-configurator-value="Sheffield_Oak_Alpine_on_White">Sheffield Oak Alpine On White</button>
+    <button type="button" value="Sheffield_Oak_Concrete_On_White" data-configurator-value="Sheffield_Oak_Concrete_on_White">Sheffield Oak Concrete On White</button>
+    <button type="button" value="Anteak_On_White" data-configurator-value="Anteak_on_White">Anteak On White</button>
+    <button type="button" value="Turner_Oak_Malt_On_White" data-configurator-value="Turner_Oak_Malt_on_White">Turner Oak Malt On White</button>
+    <button type="button" value="Irish_Oak_On_White" data-configurator-value="Irish_Oak_on_White">Irish Oak On White</button>
+    <button type="button" value="Oregon_On_White" data-configurator-value="Oregon_on_White">Oregon On White</button>
+    <button type="button" value="Cedar_On_White" data-configurator-value="Cedar_on_White">Cedar On White</button>
+    <button type="button" value="Golden_Oak_On_White" data-configurator-value="Golden_Oak_on_White">Golden Oak On White</button>
+    <button type="button" value="Mahogany_On_White" data-configurator-value="Mahogany_on_White">Mahogany On White</button>
+    <button type="button" value="Sapeli_On_White" data-configurator-value="Sapeli_on_White">Sapeli On White</button>
+    <button type="button" value="Rosewood_On_White" data-configurator-value="Rosewood_on_White">Rosewood On White</button>
+    <button type="button" value="Dark_Red_On_White" data-configurator-value="Dark_Red_on_White">Dark Red On White</button>
+    <button type="button" value="Burgundy_On_White" data-configurator-value="Burgundy_on_White">Burgundy On White</button>
+</div>
+
+        <!-- Glass Material Variants -->
+          <h3>Glass Variation</h3>
+          <div id="glassVariant" data-3d-title="Glass Variation">
+    <!-- Standard - Double Glazed -->
+    <button type="button" value="Solid_White" data-configurator-value="Clear_A_Rated_(Standard_Double_Glazed)">Solid White</button>
+    <button type="button" value="White_Woodgrain" data-configurator-value="Clear_A_Rated_(Standard_Double_Glazed)">Clear A Rated</button>
+    <button type="button" value="Ulti_Matt_Black" data-configurator-value="Grey_Tint_(Standard_Double_Glazed)">Grey Tint</button>
+    <button type="button" value="Blue" data-configurator-value="Blue-Green_Tint_(Standard_Double_Glazed)">Blue-Green Tint</button>
+    <button type="button" value="Bronze_Platin" data-configurator-value="Bronze_Tint_(Standard_Double_Glazed)">Bronze Tint</button>
+    <button type="button" value="Gale_Grey_Finesse" data-configurator-value="Arctic_(Standard_Double_Glazed)">Arctic</button>
+    <button type="button" value="Anthracite_Woodgrain_Grey" data-configurator-value="Autumn_(Standard_Double_Glazed)">Autumn</button>
+    <button type="button" value="Anthracite_Smooth_Grey" data-configurator-value="Chantilly_(Standard_Double_Glazed)">Chantilly</button>
+    <button type="button" value="Slate_Grey" data-configurator-value="Charcoal-Sticks_(Standard_Double_Glazed)">Charcoal-Sticks</button>
+    <button type="button" value="Basalt_Grey" data-configurator-value="Contora_(Standard_Double_Glazed)">Contora</button>
+    <button type="button" value="Balmoral" data-configurator-value="Cotswold_(Standard_Double_Glazed)">Cotswold</button>
+    <button type="button" value="Pebble_Grey" data-configurator-value="Digital_(Standard_Double_Glazed)">Digital</button>
+    <button type="button" value="Silver_Grey" data-configurator-value="Everglade_(Standard_Double_Glazed)">Everglade</button>
+    <button type="button" value="Grey_Aluminium" data-configurator-value="Flemish_(Standard_Double_Glazed)">Flemish</button>
+    <button type="button" value="Claystone" data-configurator-value="Florielle_(Standard_Double_Glazed)">Florielle</button>
+    <button type="button" value="Chartwell_Green" data-configurator-value="Mayflower_(Standard_Double_Glazed)">Mayflower</button>
+    <button type="button" value="Sage" data-configurator-value="Minster_(Standard_Double_Glazed)">Minster</button>
+    <button type="button" value="Agate_Grey" data-configurator-value="Oak_(Standard_Double_Glazed)">Oak</button>
+    <button type="button" value="Sheffield_Oak_Alpine" data-configurator-value="Pelerine_(Standard_Double_Glazed)">Pelerine</button>
+    <button type="button" value="Sheffield_Oak_Concrete" data-configurator-value="Satin-Opal_(Standard_Double_Glazed)">Satin Opal</button>
+    <button type="button" value="Anteak" data-configurator-value="Stippolyte_(Standard_Double_Glazed)">Stippolyte</button>
+    <button type="button" value="Turner_Oak_Malt" data-configurator-value="Sycamore_(Standard_Double_Glazed)">Sycamore</button>
+    <button type="button" value="Irish_Oak" data-configurator-value="Taffeta_(Standard_Double_Glazed)">Taffeta</button>
+    <button type="button" value="Oregon" data-configurator-value="Warwick_(Standard_Double_Glazed)">Warwick</button>
+
+    <!-- Standard - Triple Glazed -->
+    <button type="button" value="Solid_White" data-configurator-value="Clear_A_Rated_(Standard_Triple_Glazed)">Solid White (Triple Glazed)</button>
+    <button type="button" value="White_Woodgrain" data-configurator-value="Clear_A_Rated_(Standard_Triple_Glazed)">Clear A Rated (Triple Glazed)</button>
+    <button type="button" value="Ulti_Matt_Black" data-configurator-value="Grey_Tint_(Standard_Triple_Glazed)">Grey Tint (Triple Glazed)</button>
+    <button type="button" value="Blue" data-configurator-value="Blue-Green_Tint_(Standard_Triple_Glazed)">Blue-Green Tint (Triple Glazed)</button>
+    <button type="button" value="Bronze_Platin" data-configurator-value="Bronze_Tint_(Standard_Triple_Glazed)">Bronze Tint (Triple Glazed)</button>
+    <button type="button" value="Gale_Grey_Finesse" data-configurator-value="Arctic_(Standard_Triple_Glazed)">Arctic (Triple Glazed)</button>
+    <button type="button" value="Anthracite_Woodgrain_Grey" data-configurator-value="Autumn_(Standard_Triple_Glazed)">Autumn (Triple Glazed)</button>
+    <button type="button" value="Anthracite_Smooth_Grey" data-configurator-value="Chantilly_(Standard_Triple_Glazed)">Chantilly (Triple Glazed)</button>
+    <button type="button" value="Slate_Grey" data-configurator-value="Charcoal-Sticks_(Standard_Triple_Glazed)">Charcoal-Sticks (Triple Glazed)</button>
+    <button type="button" value="Basalt_Grey" data-configurator-value="Contora_(Standard_Triple_Glazed)">Contora (Triple Glazed)</button>
+    <button type="button" value="Balmoral" data-configurator-value="Cotswold_(Standard_Triple_Glazed)">Cotswold (Triple Glazed)</button>
+    <button type="button" value="Pebble_Grey" data-configurator-value="Digital_(Standard_Triple_Glazed)">Digital (Triple Glazed)</button>
+    <button type="button" value="Silver_Grey" data-configurator-value="Everglade_(Standard_Triple_Glazed)">Everglade (Triple Glazed)</button>
+    <button type="button" value="Grey_Aluminium" data-configurator-value="Flemish_(Standard_Triple_Glazed)">Flemish (Triple Glazed)</button>
+    <button type="button" value="Claystone" data-configurator-value="Florielle_(Standard_Triple_Glazed)">Florielle (Triple Glazed)</button>
+    <button type="button" value="Chartwell_Green" data-configurator-value="Mayflower_(Standard_Triple_Glazed)">Mayflower (Triple Glazed)</button>
+    <button type="button" value="Sage" data-configurator-value="Minster_(Standard_Triple_Glazed)">Minster (Triple Glazed)</button>
+    <button type="button" value="Agate_Grey" data-configurator-value="Oak_(Standard_Triple_Glazed)">Oak (Triple Glazed)</button>
+    <button type="button" value="Sheffield_Oak_Alpine" data-configurator-value="Pelerine_(Standard_Triple_Glazed)">Pelerine (Triple Glazed)</button>
+    <button type="button" value="Sheffield_Oak_Concrete" data-configurator-value="Satin-Opal_(Standard_Triple_Glazed)">Satin Opal (Triple Glazed)</button>
+    <button type="button" value="Anteak" data-configurator-value="Stippolyte_(Standard_Triple_Glazed)">Stippolyte (Triple Glazed)</button>
+    <button type="button" value="Turner_Oak_Malt" data-configurator-value="Sycamore_(Standard_Triple_Glazed)">Sycamore (Triple Glazed)</button>
+    <button type="button" value="Irish_Oak" data-configurator-value="Taffeta_(Standard_Triple_Glazed)">Taffeta (Triple Glazed)</button>
+    <button type="button" value="Oregon" data-configurator-value="Warwick_(Standard_Triple_Glazed)">Warwick (Triple Glazed)</button>
+
+    <!-- Toughened - Double Glazed -->
+    <button type="button" value="Solid_White" data-configurator-value="Clear_A_Rated_(Toughened_Double_Glazed)">Solid White (Toughened Double Glazed)</button>
+    <button type="button" value="White_Woodgrain" data-configurator-value="Clear_A_Rated_(Toughened_Double_Glazed)">Clear A Rated (Toughened Double Glazed)</button>
+    <button type="button" value="Ulti_Matt_Black" data-configurator-value="Grey_Tint_(Toughened_Double_Glazed)">Grey Tint (Toughened Double Glazed)</button>
+    <button type="button" value="Blue" data-configurator-value="Blue-Green_Tint_(Toughened_Double_Glazed)">Blue-Green Tint (Toughened Double Glazed)</button>
+    <button type="button" value="Bronze_Platin" data-configurator-value="Bronze_Tint_(Toughened_Double_Glazed)">Bronze Tint (Toughened Double Glazed)</button>
+    <button type="button" value="Gale_Grey_Finesse" data-configurator-value="Arctic_(Toughened_Double_Glazed)">Arctic (Toughened Double Glazed)</button>
+    <button type="button" value="Anthracite_Woodgrain_Grey" data-configurator-value="Autumn_(Toughened_Double_Glazed)">Autumn (Toughened Double Glazed)</button>
+    <button type="button" value="Anthracite_Smooth_Grey" data-configurator-value="Chantilly_(Toughened_Double_Glazed)">Chantilly (Toughened Double Glazed)</button>
+    <button type="button" value="Slate_Grey" data-configurator-value="Charcoal-Sticks_(Toughened_Double_Glazed)">Charcoal-Sticks (Toughened Double Glazed)</button>
+    <button type="button" value="Basalt_Grey" data-configurator-value="Contora_(Toughened_Double_Glazed)">Contora (Toughened Double Glazed)</button>
+    <button type="button" value="Balmoral" data-configurator-value="Cotswold_(Toughened_Double_Glazed)">Cotswold (Toughened Double Glazed)</button>
+    <button type="button" value="Pebble_Grey" data-configurator-value="Digital_(Toughened_Double_Glazed)">Digital (Toughened Double Glazed)</button>
+    <button type="button" value="Silver_Grey" data-configurator-value="Everglade_(Toughened_Double_Glazed)">Everglade (Toughened Double Glazed)</button>
+    <button type="button" value="Grey_Aluminium" data-configurator-value="Flemish_(Toughened_Double_Glazed)">Flemish (Toughened Double Glazed)</button>
+    <button type="button" value="Claystone" data-configurator-value="Florielle_(Toughened_Double_Glazed)">Florielle (Toughened Double Glazed)</button>
+    <button type="button" value="Chartwell_Green" data-configurator-value="Mayflower_(Toughened_Double_Glazed)">Mayflower (Toughened Double Glazed)</button>
+    <button type="button" value="Sage" data-configurator-value="Minster_(Toughened_Double_Glazed)">Minster (Toughened Double Glazed)</button>
+    <button type="button" value="Agate_Grey" data-configurator-value="Oak_(Toughened_Double_Glazed)">Oak (Toughened Double Glazed)</button>
+    <button type="button" value="Sheffield_Oak_Alpine" data-configurator-value="Pelerine_(Toughened_Double_Glazed)">Pelerine (Toughened Double Glazed)</button>
+    <button type="button" value="Sheffield_Oak_Concrete" data-configurator-value="Satin-Opal_(Toughened_Double_Glazed)">Satin Opal (Toughened Double Glazed)</button>
+    <button type="button" value="Anteak" data-configurator-value="Stippolyte_(Toughened_Double_Glazed)">Stippolyte (Toughened Double Glazed)</button>
+    <button type="button" value="Turner_Oak_Malt" data-configurator-value="Sycamore_(Toughened_Double_Glazed)">Sycamore (Toughened Double Glazed)</button>
+    <button type="button" value="Irish_Oak" data-configurator-value="Taffeta_(Toughened_Double_Glazed)">Taffeta (Toughened Double Glazed)</button>
+    <button type="button" value="Oregon" data-configurator-value="Warwick_(Toughened_Double_Glazed)">Warwick (Toughened Double Glazed)</button>
+
+    <!-- Toughened - Triple Glazed -->
+    <button type="button" value="Solid_White" data-configurator-value="Clear_A_Rated_(Toughened_Triple_Glazed)">Solid White (Toughened Triple Glazed)</button>
+    <button type="button" value="White_Woodgrain" data-configurator-value="Clear_A_Rated_(Toughened_Triple_Glazed)">Clear A Rated (Toughened Triple Glazed)</button>
+    <button type="button" value="Ulti_Matt_Black" data-configurator-value="Grey_Tint_(Toughened_Triple_Glazed)">Grey Tint (Toughened Triple Glazed)</button>
+    <button type="button" value="Blue" data-configurator-value="Blue-Green_Tint_(Toughened_Triple_Glazed)">Blue-Green Tint (Toughened Triple Glazed)</button>
+    <button type="button" value="Bronze_Platin" data-configurator-value="Bronze_Tint_(Toughened_Triple_Glazed)">Bronze Tint (Toughened Triple Glazed)</button>
+    <button type="button" value="Gale_Grey_Finesse" data-configurator-value="Arctic_(Toughened_Triple_Glazed)">Arctic (Toughened Triple Glazed)</button>
+    <button type="button" value="Anthracite_Woodgrain_Grey" data-configurator-value="Autumn_(Toughened_Triple_Glazed)">Autumn (Toughened Triple Glazed)</button>
+    <button type="button" value="Anthracite_Smooth_Grey" data-configurator-value="Chantilly_(Toughened_Triple_Glazed)">Chantilly (Toughened Triple Glazed)</button>
+    <button type="button" value="Slate_Grey" data-configurator-value="Charcoal-Sticks_(Toughened_Triple_Glazed)">Charcoal-Sticks (Toughened Triple Glazed)</button>
+    <button type="button" value="Basalt_Grey" data-configurator-value="Contora_(Toughened_Triple_Glazed)">Contora (Toughened Triple Glazed)</button>
+    <button type="button" value="Balmoral" data-configurator-value="Cotswold_(Toughened_Triple_Glazed)">Cotswold (Toughened Triple Glazed)</button>
+    <button type="button" value="Pebble_Grey" data-configurator-value="Digital_(Toughened_Triple_Glazed)">Digital (Toughened Triple Glazed)</button>
+    <button type="button" value="Silver_Grey" data-configurator-value="Everglade_(Toughened_Triple_Glazed)">Everglade (Toughened Triple Glazed)</button>
+    <button type="button" value="Grey_Aluminium" data-configurator-value="Flemish_(Toughened_Triple_Glazed)">Flemish (Toughened Triple Glazed)</button>
+    <button type="button" value="Claystone" data-configurator-value="Florielle_(Toughened_Triple_Glazed)">Florielle (Toughened Triple Glazed)</button>
+    <button type="button" value="Chartwell_Green" data-configurator-value="Mayflower_(Toughened_Triple_Glazed)">Mayflower (Toughened Triple Glazed)</button>
+    <button type="button" value="Sage" data-configurator-value="Minster_(Toughened_Triple_Glazed)">Minster (Toughened Triple Glazed)</button>
+    <button type="button" value="Agate_Grey" data-configurator-value="Oak_(Toughened_Triple_Glazed)">Oak (Toughened Triple Glazed)</button>
+    <button type="button" value="Sheffield_Oak_Alpine" data-configurator-value="Pelerine_(Toughened_Triple_Glazed)">Pelerine (Toughened Triple Glazed)</button>
+    <button type="button" value="Sheffield_Oak_Concrete" data-configurator-value="Satin-Opal_(Toughened_Triple_Glazed)">Satin Opal (Toughened Triple Glazed)</button>
+    <button type="button" value="Anteak" data-configurator-value="Stippolyte_(Toughened_Triple_Glazed)">Stippolyte (Toughened Triple Glazed)</button>
+    <button type="button" value="Turner_Oak_Malt" data-configurator-value="Sycamore_(Toughened_Triple_Glazed)">Sycamore (Toughened Triple Glazed)</button>
+    <button type="button" value="Irish_Oak" data-configurator-value="Taffeta_(Toughened_Triple_Glazed)">Taffeta (Toughened Triple Glazed)</button>
+    <button type="button" value="Oregon" data-configurator-value="Warwick_(Toughened_Triple_Glazed)">Warwick (Toughened Triple Glazed)</button>
+
+    <!-- Laminated Double Glazed -->
+    <button type="button" value="White_Woodgrain" data-configurator-value="Clear_A_Rated_(Laminated_Double_Glazed)">Clear A Rated (Laminated Double Glazed)</button>
+    <button type="button" value="White_Woodgrain" data-configurator-value="Clear_Self_Clean_(Laminated_Double_Glazed)">Clear Self Clean (Laminated Double Glazed)</button>
+
+    <!-- Laminated Double Glazed Acoustic -->
+    <button type="button" value="White_Woodgrain" data-configurator-value="Clear_A_Rated_(Laminated_Double_Glazed_Acoustic)">Clear A Rated (Laminated Acoustic Double Glazed)</button>
+    <button type="button" value="White_Woodgrain" data-configurator-value="Clear_Self_Clean_(Laminated_Double_Glazed_Acoustic)">Clear Self Clean (Laminated Acoustic Double Glazed)</button>
+</div>
+
+    <!-- Blinds Material Variants -->
+        <h3>Integral Blinds</h3>
+        <div id="blindsVariant" data-3d-title="Integral Blinds">
+    <button type="button" value="Cream_Woodgrain" data-configurator-value="SV_System - S159_Anthracite_Grey">Blinds S159 Anthracite</button>
+    <button type="button" value="Black_Brown" data-configurator-value="SV_System - S125_Beige">Blinds S125 Beige</button>
+    <button type="button" value="Dark_Green" data-configurator-value="SV_System - S130 Green">Blinds S130 Green</button>
+    <button type="button" value="Flemish_Gold" data-configurator-value="SV_System - S106_Yellow">Blinds S106 Yellow</button>
+    <button type="button" value="Trompet" data-configurator-value="SV_System - S149_Cream">Blinds S149 Cream</button>
+    <button type="button" value="Cedar" data-configurator-value="SV_System - S142_Light_Blue">Blinds S142 Light Blue</button>
+    <button type="button" value="Golden_Oak" data-configurator-value="SV_System - S158_Slate_Grey">Blinds S158 Slate Grey</button>
+    <button type="button" value="Mahogany" data-configurator-value="SV_System - S157_Silver">Blinds S157 Silver</button>
+    <button type="button" value="Sapeli" data-configurator-value="SV_System - S156_Metallic_Grey">Blinds S156 Metallic Silver</button>
+    <button type="button" value="Rosewood" data-configurator-value="SV_System - S159/S102">Blinds S159/S102</button>
+    <button type="button" value="Dark_Red" data-configurator-value="SV_System - S120_Agate_Grey">Blinds S120 Agate Grey</button>
+    <button type="button" value="Burgundy" data-configurator-value="SV_System - S102_White">Blinds S102 White</button>
+    
+    <button type="button" value="Cream_Woodgrain" data-configurator-value="SVPlus_System - S159_Anthracite_Grey">Blinds S159 Anthracite</button>
+    <button type="button" value="Black_Brown" data-configurator-value="SVPlus_System - S125_Beige">Blinds S125 Beige</button>
+    <button type="button" value="Dark_Green" data-configurator-value="SVPlus_System - S130 Green">Blinds S130 Green</button>
+    <button type="button" value="Flemish_Gold" data-configurator-value="SVPlus_System - S106_Yellow">Blinds S106 Yellow</button>
+    <button type="button" value="Trompet" data-configurator-value="SVPlus_System - S149_Cream">Blinds S149 Cream</button>
+    <button type="button" value="Cedar" data-configurator-value="SVPlus_System - S142_Light_Blue">Blinds S142 Light Blue</button>
+    <button type="button" value="Golden_Oak" data-configurator-value="SVPlus_System - S158_Slate_Grey">Blinds S158 Slate Grey</button>
+    <button type="button" value="Mahogany" data-configurator-value="SVPlus_System - S157_Silver">Blinds S157 Silver</button>
+    <button type="button" value="Sapeli" data-configurator-value="SVPlus_System - S156_Metallic_Grey">Blinds S156 Metallic Silver</button>
+    <button type="button" value="Rosewood" data-configurator-value="SVPlus_System - S159/S102">Blinds S159/S102</button>
+    <button type="button" value="Dark_Red" data-configurator-value="SVPlus_System - S120_Agate_Grey">Blinds S120 Agate Grey</button>
+    <button type="button" value="Burgundy" data-configurator-value="SVPlus_System - S102_White">Blinds S102 White</button>
+
+    <button type="button" value="Cream_Woodgrain" data-configurator-value="C_System - S159_Anthracite_Grey">Blinds S159 Anthracite</button>
+    <button type="button" value="Black_Brown" data-configurator-value="C_System - S125_Beige">Blinds S125 Beige</button>
+    <button type="button" value="Dark_Green" data-configurator-value="C_System - S130 Green">Blinds S130 Green</button>
+    <button type="button" value="Flemish_Gold" data-configurator-value="C_System - S106_Yellow">Blinds S106 Yellow</button>
+    <button type="button" value="Trompet" data-configurator-value="C_System - S149_Cream">Blinds S149 Cream</button>
+    <button type="button" value="Cedar" data-configurator-value="C_System - S142_Light_Blue">Blinds S142 Light Blue</button>
+    <button type="button" value="Golden_Oak" data-configurator-value="C_System - S158_Slate_Grey">Blinds S158 Slate Grey</button>
+    <button type="button" value="Mahogany" data-configurator-value="C_System - S157_Silver">Blinds S157 Silver</button>
+    <button type="button" value="Sapeli" data-configurator-value="C_System - S156_Metallic_Grey">Blinds S156 Metallic Silver</button>
+    <button type="button" value="Rosewood" data-configurator-value="C_System - S159/S102">Blinds S159/S102</button>
+    <button type="button" value="Dark_Red" data-configurator-value="C_System - S120_Agate_Grey">Blinds S120 Agate Grey</button>
+    <button type="button" value="Burgundy" data-configurator-value="C_System - S102_White">Blinds S102 White</button>
+</div>
+
+        <!-- Handle Material Variants -->
+        <h3>Handle Colour</h3>
+        <div id="handleVariant" data-3d-title="Handle Colour">
+    <button type="button" value="Solid_White" data-configurator-value="White">White</button>
+    <button type="button" value="Ulti_Matt_Black" data-configurator-value="Anthracite_Grey">Anthracite Grey</button>
+    <button type="button" value="Anthracite_Woodgrain_Grey" data-configurator-value="Black">Black</button>
+    <button type="button" value="Silver_Grey" data-configurator-value="Polished_Chrome">Polished Chrome</button>
+    <button type="button" value="Grey_Aluminium" data-configurator-value="Satin_Chrome">Satin Chrome</button>
         </div>
 
-        <!-- Module 2 -->
-        <div class="module mb-6">
-            <div class="p-4">
-                <button onclick="toggleModule('module2')" class="w-full text-left">
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-semibold">L2: The Six Ling Sounds</span>
-                        <span class="text-sm text-gray-500">50%</span>
-                    </div>
-                    <div class="completion-bar mt-2">
-                        <div class="w-1/2 completion-bar completed"></div>
-                    </div>
-                </button>
-            </div>
-            <div id="module2" class="hidden p-4">
-                <ul>
-                    <li class="mb-2">
-                        <input type="checkbox" checked disabled class="mr-2"> L2.a Six Ling Sounds Overview
-                    </li>
-                    <li class="mb-2">
-                        <input type="checkbox" disabled class="mr-2"> L2.b Six Ling Sounds Overview
-                    </li>
-                    <!-- Add more lessons as needed -->
-                </ul>
-            </div>
+        <!-- Hide/Show Buttons -->
+        <h3>Toggle Parts</h3>
+        <button type="button" id="toggleOuterFrame">Toggle OuterFrame</button>
+        <button type="button" id="toggleHandle">Toggle Handle</button>
+
+        <!-- Animation Controls -->
+        <h3>Panel Opening (A1)</h3>
+        <div id="panelOpening" data-3d-title="Panel Opening (A1)">
+            <button type="button" data-configurator-value="Top_(A1)" id="playTop">Top</button>
+            <button type="button" data-configurator-value="Left_(A1)" id="playLeft">Left</button>
+            <button type="button" data-configurator-value="Right_(A1)" id="playRight">Right</button>
+            <button type="button" data-configurator-value="Fixed_(A1)" id="playFixed_A1">Fixed</button>
+            <button type="button" data-configurator-value="Dummy_(A1)" id="playDummy_A1">Dummy</button>
         </div>
 
-        <!-- Module 3 -->
-        <div class="module">
-            <div class="p-4">
-                <button onclick="toggleModule('module3')" class="w-full text-left">
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-semibold">L3: Understanding My Child's Audiogram</span>
-                        <span class="text-sm text-gray-500">Not Started</span>
-                    </div>
-                    <div class="completion-bar mt-2">
-                        <div class="w-0 completion-bar"></div>
-                    </div>
-                </button>
-            </div>
-            <div id="module3" class="hidden p-4">
-                <ul>
-                    <li class="mb-2">
-                        <input type="checkbox" disabled class="mr-2"> L3.a Understanding Audiograms
-                    </li>
-                    <!-- Add more lessons as needed -->
-                </ul>
-            </div>
+        <!-- Animation Controls -->
+        <h3>Panel Opening (A2)</h3>
+        <div id="panelOpening" data-3d-title="Panel Opening (A2)">
+            <button type="button" data-configurator-value="Top_(A2)" id="playTop_A2">Top</button>
+            <button type="button" data-configurator-value="Left_(A2)" id="playLeft_A2">Left</button>
+            <button type="button" data-configurator-value="Right_(A2)" id="playRight_A2">Right</button>
+            <button type="button" data-configurator-value="Fixed_(A2)" id="playFixed_A2">Fixed</button>
+            <button type="button" data-configurator-value="Dummy_(A2)" id="playDummy_A2">Dummy</button>
         </div>
 
-    </div>
+        <!-- Animation Controls B1 -->
+        <h3>Panel Opening (B1)</h3>
+        <div id="panelOpening" data-3d-title="Panel Opening (B1)">
+            <button type="button" data-configurator-value="Top_(B1)" id="playTop_B1">Top</button>
+            <button type="button" data-configurator-value="Left_(B1)" id="playLeft_B1">Left</button>
+            <button type="button" data-configurator-value="Right_(B1)" id="playRight_B1">Right</button>
+            <button type="button" data-configurator-value="Fixed_(B1)" id="playFixed_B1">Fixed</button>
+            <button type="button" data-configurator-value="Dummy_(B1)" id="playDummy_B1">Dummy</button>
+        </div>
+
+        <!-- Animation Controls B2 -->
+        <h3>Panel Opening (B2)</h3>
+        <div id="panelOpening" data-3d-title="Panel Opening (B2)">
+            <button type="button" data-configurator-value="Top_(B2)" id="playTop_B2">Top</button>
+            <button type="button" data-configurator-value="Left_(B2)" id="playLeft_B2">Left</button>
+            <button type="button" data-configurator-value="Right_(B2)" id="playRight_B2">Right</button>
+            <button type="button" data-configurator-value="Fixed_(B2)" id="playFixed_B2">Fixed</button>
+            <button type="button" data-configurator-value="Dummy_(B2)" id="playDummy_B2">Dummy</button>
+        </div>
+
+        <!-- Animation Controls C1 -->
+        <h3>Panel Opening (C1)</h3>
+        <div id="panelOpening" data-3d-title="Panel Opening (C1)">
+            <button type="button" data-configurator-value="Top_(C1)" id="playTop_C1">Top</button>
+            <button type="button" data-configurator-value="Left_(C1)" id="playLeft_C1">Left</button>
+            <button type="button" data-configurator-value="Right_(C1)" id="playRight_C1">Right</button>
+            <button type="button" data-configurator-value="Fixed_(C1)" id="playFixed_C1">Fixed</button>
+            <button type="button" data-configurator-value="Dummy_(C1)" id="playDummy_C1">Dummy</button>
+        </div>
+
+        <!-- Animation Controls C2 -->
+        <h3>Panel Opening (C2)</h3>
+        <div id="panelOpening" data-3d-title="Panel Opening (C2)">
+            <button type="button" data-configurator-value="Top_(C2)" id="playTop_C2">Top</button>
+            <button type="button" data-configurator-value="Left_(C2)" id="playLeft_C2">Left</button>
+            <button type="button" data-configurator-value="Right_(C2)" id="playRight_C2">Right</button>
+            <button type="button" data-configurator-value="Fixed_(C2)" id="playFixed_C2">Fixed</button>
+            <button type="button" data-configurator-value="Dummy_(C2)" id="playDummy_C2">Dummy</button>
+        </div>
+
+        <!-- Animation Controls D1 -->
+        <h3>Panel Opening (D1)</h3>
+        <div id="panelOpening" data-3d-title="Panel Opening (D1)">
+            <button type="button" data-configurator-value="Top_(D1)" id="playTop_D1">Top</button>
+            <button type="button" data-configurator-value="Left_(D1)" id="playLeft_D1">Left</button>
+            <button type="button" data-configurator-value="Right_(D1)" id="playRight_D1">Right</button>
+            <button type="button" data-configurator-value="Fixed_(D1)" id="playFixed_D1">Fixed</button>
+            <button type="button" data-configurator-value="Dummy_(D1)" id="playDummy_D1">Dummy</button>
+        </div>
+
+        <!-- Animation Controls D2 -->
+        <h3>Panel Opening (D2)</h3>
+        <div id="panelOpening" data-3d-title="Panel Opening (D2)">
+            <button type="button" data-configurator-value="Top_(D2)" id="playTop_D2">Top</button>
+            <button type="button" data-configurator-value="Left_(D2)" id="playLeft_D2">Left</button>
+            <button type="button" data-configurator-value="Right_(D2)" id="playRight_D2">Right</button>
+            <button type="button" data-configurator-value="Fixed_(D2)" id="playFixed_D2">Fixed</button>
+            <button type="button" data-configurator-value="Fixed" id="playFixed">Fixed T</button>
+            <button type="button" data-configurator-value="Dummy_(D2)" id="playDummy_D2">Dummy</button>
+        </div>
+
+        <!-- Trickle Vent -->
+        <h3>Trickle Vents</h3>
+        <div data-3d-title="Trickle Vents">
+            <button type="button" data-configurator-value="A1" id="A1_Toggle">A1</button>
+            <button type="button" data-configurator-value="A2" id="A2_Toggle">A2</button>
+            <button type="button" data-configurator-value="B1" id="B1_Toggle">B1</button>
+            <button type="button" data-configurator-value="B2" id="B2_Toggle">B2</button>
+            <button type="button" data-configurator-value="C1" id="C1_Toggle">C1</button>
+            <button type="button" data-configurator-value="C2" id="C2_Toggle">C2</button>
+            <button type="button" data-configurator-value="D1" id="D1_Toggle">D1</button>
+            <button type="button" data-configurator-value="D2" id="D2_Toggle">D2</button>
+            <button type="button" data-configurator-value="None" id="noneTrickleVent_Toggle">None</button>
+        </div>
+
+        <!-- External Cill -->
+        <h3>External Cill</h3>
+        <div data-3d-title="External Cill">
+            <button type="button" id="externalcill_150mm_Toggle" data-configurator-value="150mm">150mm</button>
+            <button type="button" id="externalcill_225mm_Toggle" data-configurator-value="225mm">225mm</button>
+            <button type="button" id="externalcill_180mm_Toggle" data-configurator-value="180mm">180mm</button>
+            <button type="button" id="externalcill_85mm_Toggle" data-configurator-value="85mm">85mm</button>
+            <button type="button" id="noneExternalCill_Toggle" data-configurator-value="No">None</button>
+        </div>
 
     <script>
-        function toggleModule(id) {
-            const module = document.getElementById(id);
-            if (module.classList.contains('hidden')) {
-                module.classList.remove('hidden');
+        let scene, camera, renderer, model, controls, mixer, animations = {};
+        let morphTargets = {}; // Dictionary to store morph target indices for each mesh
+        let variantsExtension, parser; // To access the KHR_materials_variants extension and the GLTF parser
+        let variantNames = []; // Store variant names
+        let storedWidthValue = 0;  // To store the current width
+        let storedHeightValue = 0; // To store the current height
+
+        init();
+
+        function init() {
+            // Scene setup
+            scene = new THREE.Scene();
+
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(45, 500 / 500, 0.1, 1000);
+            camera.position.set(0, 2, 20);
+
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(500, 500);
+            renderer.physicallyCorrectLights = true;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 3.8; // Increased for brighter materials
+            document.getElementById('viewer-container').appendChild(renderer.domElement);
+
+            // OrbitControls setup
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.25;
+            controls.screenSpacePanning = false;
+            controls.maxPolarAngle = Math.PI / 2;
+
+            // Load the HDRI environment map
+            const rgbeLoader = new THREE.RGBELoader();
+            rgbeLoader.load('https://moloagency.github.io/glassopenings-hdri/dry_orchard_meadow_4k.hdr', function (texture) {
+                texture.mapping = THREE.EquirectangularReflectionMapping;
+                scene.environment = texture;
+                scene.background = null; // Keep the background transparent
+            });
+
+            // Ambient Light
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            // Directional Light (front light source)
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            dirLight.position.set(3, 10, 10);
+            scene.add(dirLight);
+
+            // Directional Light (back light source)
+            const backLight = new THREE.DirectionalLight(0xffffff, 1.0);
+            backLight.position.set(-3, -10, -10);
+            scene.add(backLight);
+
+            // Load the model
+            const dracoLoader = new THREE.DRACOLoader();
+            dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+            const loader = new THREE.GLTFLoader();
+            loader.setDRACOLoader(dracoLoader);
+
+function applyDefaultSpacerBarVariant() {
+    const variantName = "Ulti_Matt_Black";
+    if (variantNames.includes(variantName)) {
+        // Apply "Ulti Matt Black" variant to both spacer and bar parts in the model
+        selectVariant(model, parser, variantsExtension, variantName, ["Glass_Spacer", "Glass_OuterFrame_Spacer", "WindowFrame_Spacer_Bar", "OuterFrame_Spacer_Bar"]);
+        console.log('Default Spacer & Bar Variant applied:', variantName);
+    } else {
+        console.error(`Variant '${variantName}' not found in the model.`);
+    }
+}
+
+            loader.load('https://3dmodelsglb.s3.eu-north-1.amazonaws.com/S25+UPVC+Standard+Complete+Final.glb', function (gltf) {
+                model = gltf.scene;
+                model.scale.set(0.025, 0.025, 0.025);
+                model.position.set(55.5, -3.5, 0);
+                scene.add(model);
+
+                enableMorphTargets(model);
+    // Access the KHR_materials_variants extension and parser
+    variantsExtension = gltf.userData.gltfExtensions['KHR_materials_variants'];
+    parser = gltf.parser;
+
+    if (variantsExtension) {
+        variantNames = variantsExtension.variants.map(variant => variant.name);
+        console.log('Available variants in the model:', variantNames);
+
+        // Apply the default variant to spacers and bars
+        applyDefaultSpacerBarVariant();
+    } else {
+        console.error('KHR_materials_variants extension is not available in the GLTF model.');
+    }
+ 
+            // Event listener for width (size-width)
+               document.getElementById('size-width').addEventListener('input', (event) => {
+               const widthValue = normalizeRange(event.target.value, 1200, 3500); // Normalize 800-2700 to 0-1
+               adjustShapeKeys("width", widthValue); // Adjust the width using normalized value
+               console.log(`Width: ${event.target.value} mm, normalized: ${widthValue}`); // Debugging output
+            });
+
+             // Event listener for height (size-height)
+                document.getElementById('size-height').addEventListener('input', (event) => {
+                const heightValue = normalizeRange(event.target.value, 800, 2600); // Normalize 400-2200 to 0-1
+                adjustShapeKeys("height", heightValue); // Adjust the height using normalized value
+               console.log(`Height: ${event.target.value} mm, normalized: ${heightValue}`); // Debugging output
+            });
+
+               document.getElementById('p-width').addEventListener('input', (event) => {
+                     const value = event.target.value;
+                     document.getElementById('size-width').value = value;
+                     document.getElementById('size-width').dispatchEvent(new Event('input'));
+            });
+
+               document.getElementById('p-height').addEventListener('input', (event) => {
+                     const value = event.target.value;
+                     document.getElementById('size-height').value = value;
+                     document.getElementById('size-height').dispatchEvent(new Event('input'));
+            });
+
+document.getElementById('transom-up').addEventListener('input', (event) => {
+    const transomUpValue = normalizePositiveRange(parseFloat(event.target.value), 0, 100);
+    adjustShapeKeys("transomUp", transomUpValue);
+});
+
+document.getElementById('transom-down').addEventListener('input', (event) => {
+    const transomDownValue = normalizePositiveRange(parseFloat(event.target.value), 0, 100);
+    adjustShapeKeys("transomDown", transomDownValue);
+});
+
+document.getElementById('mullion-left-a').addEventListener('input', (event) => {
+    const mullionLeftAValue = normalizePositiveRange(parseFloat(event.target.value), 0, 100);
+    adjustShapeKeys("mullionLeftA", mullionLeftAValue);
+});
+
+document.getElementById('mullion-right-a').addEventListener('input', (event) => {
+    const mullionRightAValue = normalizePositiveRange(parseFloat(event.target.value), 0, 100);
+    adjustShapeKeys("mullionRightA", mullionRightAValue);
+});
+
+document.getElementById('mullion-left-b').addEventListener('input', (event) => {
+    const mullionLeftBValue = normalizePositiveRange(parseFloat(event.target.value), 0, 100);
+    adjustShapeKeys("mullionLeftB", mullionLeftBValue);
+});
+
+document.getElementById('mullion-right-b').addEventListener('input', (event) => {
+    const mullionRightBValue = normalizePositiveRange(parseFloat(event.target.value), 0, 100);
+    adjustShapeKeys("mullionRightB", mullionRightBValue);
+});
+
+document.getElementById('mullion-left-c').addEventListener('input', (event) => {
+    const mullionLeftCValue = normalizePositiveRange(parseFloat(event.target.value), 0, 100);
+    adjustShapeKeys("mullionLeftC", mullionLeftCValue);
+});
+
+document.getElementById('mullion-right-c').addEventListener('input', (event) => {
+    const mullionRightCValue = normalizePositiveRange(parseFloat(event.target.value), 0, 100);
+    adjustShapeKeys("mullionRightC", mullionRightCValue);
+});
+
+                // Access the KHR_materials_variants extension and the parser
+                variantsExtension = gltf.userData.gltfExtensions['KHR_materials_variants'];
+                parser = gltf.parser;
+
+                if (variantsExtension) {
+                    variantNames = variantsExtension.variants.map(variant => variant.name);
+                    console.log('Available variants in the model:', variantNames);
+                } else {
+                    console.error('KHR_materials_variants extension is not available in the GLTF model.');
+                }
+
+                // Store morph target indices for each mesh and its corresponding shape keys
+                model.traverse((child) => {
+                    if (child.isMesh && child.morphTargetDictionary) {
+                        const morphKeys = {};
+                        Object.keys(child.morphTargetDictionary).forEach((key) => {
+                            if (key.includes("Width") || key.includes("Height") || key.includes("Mullion") || key.includes("Transom") || key === "Top" || key === "Left" || key === "Right" || key === "Top_Rotation" || key === "Left_Rotation" || key === "Right_Rotation") {
+                                morphKeys[key] = child.morphTargetDictionary[key];
+                            }
+                        });
+
+                        if (Object.keys(morphKeys).length > 0) {
+                            morphTargets[child.name] = {
+                                mesh: child,
+                                morphKeys: morphKeys
+                            };
+                            console.log(`Found morph targets for ${child.name}:`, morphKeys);
+                        }
+                    }
+                });
+
+                // Set initial visibility
+                resetToInitialState();
+
+                // Adjust material properties for reduced reflectivity
+                modifyMaterialProperties(model);
+
+                animate();
+            }, undefined, function (error) {
+                console.error('An error occurred while loading the model:', error);
+            });
+
+            // Resize handling
+            window.addEventListener('resize', onWindowResize, false);
+
+// Material Variant Change Event Listeners for Buttons
+document.querySelectorAll('#frameVariant button').forEach(button => {
+    button.addEventListener('click', (event) => {
+        const variantName = event.target.getAttribute('value');
+        const configuratorValue = event.target.getAttribute('data-configurator-value');
+
+        console.log('Configurator Value:', configuratorValue);
+
+        if (variantNames.includes(variantName)) {
+            selectVariant(model, parser, variantsExtension, variantName, ["WindowFrame_A1", "WindowFrame_A2", "WindowFrame_B1", "WindowFrame_B2", "WindowFrame_C1", "WindowFrame_C2", "WindowFrame_D1", "WindowFrame_D2", "OuterFrame", "A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2", "Cill_225mm", "Cill_180mm", "Cill_150mm", "Cill_85mm"]);
+        }
+    });
+});
+
+// Glass Variant Change Event Listeners for Buttons
+document.querySelectorAll('#glassVariant button').forEach(button => {
+    button.addEventListener('click', (event) => {
+        const variantName = event.target.value; // Retrieve 'value' from the button
+        
+        console.log('Selected Glass Variant:', variantName);
+
+        // Check if the selected variant exists in the variant list
+        if (variantNames.includes(variantName)) {
+            // Apply the variant to Glass and Glass_OuterFrame parts of the model
+            selectVariant(model, parser, variantsExtension, variantName, ["Glass_A1", "Glass_A2", "Glass_B1", "Glass_B2", "Glass_C1", "Glass_C2", "Glass_D1", "Glass_D2", "Glass_OuterFrame_A1", "Glass_OuterFrame_A2", "Glass_OuterFrame_B1", "Glass_OuterFrame_B2", "Glass_OuterFrame_C1", "Glass_OuterFrame_C2", "Glass_OuterFrame_D1", "Glass_OuterFrame_D2"]);
+        }
+    });
+});
+        
+// Blinds Variant Change Event Listeners for Buttons
+document.querySelectorAll('#blindsVariant button').forEach(button => {
+    button.addEventListener('click', (event) => {
+        const variantName = event.target.value; // Retrieve 'value' from the button
+
+        console.log('Selected Blinds Variant:', variantName);
+
+        // Check if the selected variant exists in the variant list
+        if (variantNames.includes(variantName)) {
+            // Apply the variant to Glass and Glass_OuterFrame parts of the model
+            selectVariant(model, parser, variantsExtension, variantName, ["Glass_A1", "Glass_A2", "Glass_B1", "Glass_B2", "Glass_C1", "Glass_C2", "Glass_D1", "Glass_D2", "Glass_OuterFrame_A1", "Glass_OuterFrame_A2", "Glass_OuterFrame_B1", "Glass_OuterFrame_B2", "Glass_OuterFrame_C1", "Glass_OuterFrame_C2", "Glass_OuterFrame_D1", "Glass_OuterFrame_D2"]);
+        }
+    });
+});
+
+// Spacer & Bar Variant Change Event Listeners for Buttons
+document.querySelectorAll('#spacerBarVariant button').forEach(button => {
+    button.addEventListener('click', (event) => {
+        const variantName = event.target.getAttribute('value');
+        const configuratorValue = event.target.getAttribute('data-configurator-value');
+        console.log('Selected Spacer & Bar Variant:', configuratorValue);
+
+        if (variantNames.includes(variantName)) {
+            // Apply the selected variant to both spacer and bar parts in the model
+            selectVariant(model, parser, variantsExtension, variantName, ["Glass_Spacer", "Glass_OuterFrame_Spacer", "WindowFrame_Spacer_Bar", "OuterFrame_Spacer_Bar"]);
+        }
+    });
+});
+
+document.querySelectorAll('#handleVariant button').forEach(button => {
+    button.addEventListener('click', (event) => {
+        const variantName = event.target.getAttribute('value'); // Retrieve 'value' from the button
+        const configuratorValue = event.target.getAttribute('data-configurator-value'); // Retrieve 'data-configurator-value' attribute
+        
+        console.log('Configurator Value:', configuratorValue);
+
+        if (variantNames.includes(variantName)) {
+            selectVariant(model, parser, variantsExtension, variantName, ["Handle_A1", "Handle_A2", "Handle_B1", "Handle_B2", "Handle_C1", "Handle_C2", "Handle_D1", "Handle_D2", "Handle_A1_Right", "Handle_A1_Left", "Handle_A2_Right", "Handle_A2_Left", "Handle_B2_Right", "Handle_B2_Left", "Handle_B1_Right", "Handle_B1_Left", "Handle_C1_Right", "Handle_C1_Left", "Handle_C2_Right", "Handle_C2_Left", "Handle_D1_Right", "Handle_D1_Left", "Handle_D2_Right", "Handle_D2_Left", "Handle_Base_A1", "Handle_Base_A1_Right", "Handle_Base_A1_Left", "Handle_Base_A2", "Handle_Base_A2_Right", "Handle_Base_A2_Left", "Handle_Base_B2", "Handle_Base_C1", "Handle_Base_B1", "Handle_Base_B1_Right", "Handle_Base_B1_Left", "Handle_Base_B2_Right", "Handle_Base_B2_Left", "Handle_Base_C1_Right", "Handle_Base_C1_Left", "Handle_Base_C2", "Handle_Base_C2_Right", "Handle_Base_C2_Left", "Handle_Base_D1", "Handle_Base_D1_Right", "Handle_Base_D1_Left", "Handle_Base_D2", "Handle_Base_D2_Right", "Handle_Base_D2_Left"]);
+        }
+    });
+});
+
+            // Toggle visibility of parts
+            document.getElementById('A1_Toggle').addEventListener('click', () => toggleVisibility("A1"));
+            document.getElementById('A2_Toggle').addEventListener('click', () => toggleVisibility("A2"));
+            document.getElementById('B2_Toggle').addEventListener('click', () => toggleVisibility("B2"));
+            document.getElementById('B1_Toggle').addEventListener('click', () => toggleVisibility("B1"));
+            document.getElementById('C1_Toggle').addEventListener('click', () => toggleVisibility("C1"));
+            document.getElementById('C2_Toggle').addEventListener('click', () => toggleVisibility("C2"));
+            document.getElementById('D1_Toggle').addEventListener('click', () => toggleVisibility("D1"));
+            document.getElementById('D2_Toggle').addEventListener('click', () => toggleVisibility("D2"));
+            document.getElementById('externalcill_150mm_Toggle').addEventListener('click', () => toggleVisibility("Cill_150mm"));
+            document.getElementById('externalcill_225mm_Toggle').addEventListener('click', () => toggleVisibility("Cill_225mm"));
+            document.getElementById('externalcill_180mm_Toggle').addEventListener('click', () => toggleVisibility("Cill_180mm"));
+            document.getElementById('externalcill_85mm_Toggle').addEventListener('click', () => toggleVisibility("Cill_85mm"));
+            document.getElementById('toggleOuterFrame').addEventListener('click', () => toggleVisibility("OuterFrame"));
+            document.getElementById('toggleHandle').addEventListener('click', () => toggleVisibility("Handle"));
+
+document.getElementById('noneTrickleVent_Toggle').addEventListener('click', () => {
+    // List of objects to hide
+    const trickleVentNames = ["A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2"];
+
+    // Iterate through the names and hide each object
+    trickleVentNames.forEach(name => {
+        const trickleVent = model.getObjectByName(name);
+        if (trickleVent) {
+            trickleVent.visible = false;
+        }
+    });
+
+    // Update the scene to reflect changes
+    renderer.render(scene, camera);
+});
+
+          // Hide External Cills (None button)
+          document.getElementById('noneExternalCill_Toggle').addEventListener('click', () => {
+                const cillNames = ["Cill_150mm", "Cill_225mm", "Cill_180mm", "Cill_85mm"];
+                cillNames.forEach(cillName => {
+                       const cill = model.getObjectByName(cillName);
+                        if (cill) {
+                            cill.visible = false;
+                    }
+             });
+           renderer.render(scene, camera); // Update the scene to reflect changes
+          });
+
+            // Animation Button Event Listeners A1
+document.getElementById('playTop').addEventListener('click', () => {
+    // Show WindowFrame, Handle, and Glass for this animation
+    showMeshesForAnimation(["WindowFrame_A1", "Handle_A1", "Handle_Base_A1", "WindowFrame_Spacer_Bar_A1", "Glass_A1"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_A1", "Glass_OuterFrame_Spacer", "Handle_A1_Left", "Handle_A1_Right", "Handle_Base_A1_Left", "Handle_Base_A1_Right", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_A1"];
+    if (handleMesh && "Top_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Top_Rotation"];
+
+        // Step 1: Animate handle from 0 to 1
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            // Step 2: Play window shape key animation after handle goes to 1
+            playShapeKeyAnimation("Top", ["WindowFrame_A1", "WindowFrame_Spacer_Bar_A1", "Handle_A1", "Handle_Base_A1", "Glass_A1", "A1"], () => {
+                // Step 3: Animate handle from 1 back to 0 after window animation completes
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Handle_Rotation shape key not found for Handle_A1");
+    }
+});
+
+document.getElementById('playLeft').addEventListener('click', () => {
+    // Show WindowFrame, Handle_Left, and Glass, and hide outer frame components
+    showMeshesForAnimation(["WindowFrame_A1", "Handle_A1_Left", "Handle_Base_A1_Left", "WindowFrame_Spacer_Bar_A1", "Glass"]);
+    hideMeshesForAnimation(["Glass_OuterFrame", "Glass_OuterFrame_Spacer", "Handle_A1", "Handle_Base_A1", "Handle_A1_Right", "Handle_Base_A1_Right", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_A1_Left"];
+    if (handleMesh && "Left_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Left_Rotation"];
+
+        // Step 1: Animate handle from 0 to 1
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            // Step 2: Play window shape key animation after handle goes to 1
+            playShapeKeyAnimation("Left", ["WindowFrame_A1", "WindowFrame_Spacer_Bar_A1", "Handle_A1_Left", "Handle_Base_A1_Left", "Glass_A1", "A1"], () => {
+                // Step 3: Animate handle from 1 back to 0 after window animation completes
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Left_Rotation shape key not found for Handle_Left");
+    }
+});
+
+document.getElementById('playRight').addEventListener('click', () => {
+    // Show WindowFrame, Handle_Right, and Glass, and hide outer frame components
+    showMeshesForAnimation(["WindowFrame_A1", "Handle_A1_Right", "Handle_Base_A1_Right", "WindowFrame_Spacer_Bar_A1", "Glass_A1"]);
+    hideMeshesForAnimation(["Glass_OuterFrame", "Glass_OuterFrame_Spacer", "Handle_A1_Left", "Handle_Base_A1_Left", "Handle_A1", "Handle_Base_A1", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_A1_Right"];
+    if (handleMesh && "Right_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Right_Rotation"];
+
+        // Step 1: Animate handle from 0 to 1
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            // Step 2: Play window shape key animation after handle goes to 1
+            playShapeKeyAnimation("Right", ["WindowFrame_A1", "WindowFrame_Spacer_Bar_A1", "Handle_A1_Right", "Handle_Base_A1_Right", "Glass_A1", "A1"], () => {
+                // Step 3: Animate handle from 1 back to 0 after window animation completes
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Right_Rotation shape key not found for Handle_Right");
+    }
+});
+
+            // Reset to original state
+            document.getElementById('playFixed').addEventListener('click', () => {
+                resetToInitialState();
+            });
+        }
+
+// Function to show only window meshes (Dummy Mode)
+function playDummyWindow(panelName) {
+    const windowMeshes = [
+        `WindowFrame_${panelName}`, 
+        `Glass_${panelName}`, 
+        `WindowFrame_Spacer_Bar_${panelName}`,
+        `Glass_Spacer`
+    ];
+    
+    const hiddenMeshes = [
+        `Handle_${panelName}`, `Handle_${panelName}_Left`, `Handle_${panelName}_Right`,
+        `Handle_Base_${panelName}`, `Handle_Base_${panelName}_Left`, `Handle_Base_${panelName}_Right`,
+        `Glass_OuterFrame_${panelName}`, `Glass_OuterFrame_Spacer`
+    ];
+    
+    // Show window parts
+    showMeshesForAnimation(windowMeshes);
+    
+    // Hide interactive elements
+    hideMeshesForAnimation(hiddenMeshes);
+    
+    // Update scene
+    renderer.render(scene, camera);
+}
+
+// Attach playDummy to each window button
+const dummyButtons = [
+    "A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2"
+];
+
+dummyButtons.forEach(panel => {
+    const button = document.getElementById(`playDummy_${panel}`);
+    if (button) {
+        button.addEventListener('click', () => playDummyWindow(panel));
+    }
+});
+
+document.getElementById('playTop_A2').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_A2", "Handle_A2", "Handle_Base_A2", "WindowFrame_Spacer_Bar_A2", "Glass_A2"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_A2", "Glass_OuterFrame_Spacer", "Handle_A2_Left", "Handle_A2_Right", "Handle_Base_A2_Left", "Handle_Base_A2_Right", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_A2"];
+    if (handleMesh && "Top_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Top_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Top", ["WindowFrame_A2", "WindowFrame_Spacer_Bar_A2", "Handle_A2", "Handle_Base_A2", "Glass_A2", "A2"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Top_Rotation shape key not found for Handle_A2");
+    }
+});
+
+document.getElementById('playLeft_A2').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_A2", "Handle_A2_Left", "Handle_Base_A2_Left", "WindowFrame_Spacer_Bar_A2", "Glass_A2"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_A2", "Glass_OuterFrame_Spacer", "Handle_A2", "Handle_Base_A2", "Handle_A2_Right", "Handle_Base_A2_Right", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_A2_Left"];
+    if (handleMesh && "Left_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Left_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Left", ["WindowFrame_A2", "WindowFrame_Spacer_Bar_A2", "Handle_A2_Left", "Handle_Base_A2_Left", "Glass_A2", "A2"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Left_Rotation shape key not found for Handle_A2_Left");
+    }
+});
+
+document.getElementById('playRight_A2').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_A2", "Handle_A2_Right", "Handle_Base_A2_Right", "WindowFrame_Spacer_Bar_A2", "Glass_A2"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_A2", "Glass_OuterFrame_Spacer", "Handle_A2_Left", "Handle_Base_A2_Left", "Handle_A2", "Handle_Base_A2", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_A2_Right"];
+    if (handleMesh && "Right_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Right_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Right", ["WindowFrame_A2", "WindowFrame_Spacer_Bar_A2", "Handle_A2_Right", "Handle_Base_A2_Right", "Glass_A2", "A2"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Right_Rotation shape key not found for Handle_A2_Right");
+    }
+});
+
+document.getElementById('playFixed').addEventListener('click', () => {
+    resetToInitialState();
+});
+
+// Animation Button Event Listeners B1
+document.getElementById('playTop_B1').addEventListener('click', () => {
+    // Show WindowFrame, Handle, and Glass for this animation
+    showMeshesForAnimation(["WindowFrame_B1", "Handle_B1", "Handle_Base_B1", "WindowFrame_Spacer_Bar_B1", "Glass_B1"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_B1", "Glass_OuterFrame_Spacer", "Handle_B1_Left", "Handle_B1_Right", "Handle_Base_B1_Left", "Handle_Base_B1_Right", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_B1"];
+    if (handleMesh && "Top_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Top_Rotation"];
+
+        // Step 1: Animate handle from 0 to 1
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            // Step 2: Play window shape key animation after handle goes to 1
+            playShapeKeyAnimation("Top", ["WindowFrame_B1", "WindowFrame_Spacer_Bar_B1", "Handle_B1", "Handle_Base_B1", "Glass_B1", "B1"], () => {
+                // Step 3: Animate handle from 1 back to 0 after window animation completes
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Top_Rotation shape key not found for Handle_B1");
+    }
+});
+
+document.getElementById('playLeft_B1').addEventListener('click', () => {
+    // Show WindowFrame, Handle_Left, and Glass, and hide outer frame components
+    showMeshesForAnimation(["WindowFrame_B1", "Handle_B1_Left", "Handle_Base_B1_Left", "WindowFrame_Spacer_Bar_B1", "Glass_B1"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_B1", "Glass_OuterFrame_Spacer", "Handle_B1", "Handle_Base_B1", "Handle_B1_Right", "Handle_Base_B1_Right", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_B1_Left"];
+    if (handleMesh && "Left_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Left_Rotation"];
+
+        // Step 1: Animate handle from 0 to 1
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            // Step 2: Play window shape key animation after handle goes to 1
+            playShapeKeyAnimation("Left", ["WindowFrame_B1", "WindowFrame_Spacer_Bar_B1", "Handle_B1_Left", "Handle_Base_B1_Left", "Glass_B1", "B1"], () => {
+                // Step 3: Animate handle from 1 back to 0 after window animation completes
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Left_Rotation shape key not found for Handle_Left");
+    }
+});
+
+document.getElementById('playRight_B1').addEventListener('click', () => {
+    // Show WindowFrame, Handle_Right, and Glass, and hide outer frame components
+    showMeshesForAnimation(["WindowFrame_B1", "Handle_B1_Right", "Handle_Base_B1_Right", "WindowFrame_Spacer_Bar_B1", "Glass_B1"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_B1", "Glass_OuterFrame_Spacer", "Handle_B1", "Handle_Base_B1", "Handle_B1_Left", "Handle_Base_B1_Left", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_B1_Right"];
+    if (handleMesh && "Right_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Right_Rotation"];
+
+        // Step 1: Animate handle from 0 to 1
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            // Step 2: Play window shape key animation after handle goes to 1
+            playShapeKeyAnimation("Right", ["WindowFrame_B1", "WindowFrame_Spacer_Bar_B1", "Handle_B1_Right", "Handle_Base_B1_Right", "Glass_B1", "B1"], () => {
+                // Step 3: Animate handle from 1 back to 0 after window animation completes
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Right_Rotation shape key not found for Handle_Right");
+    }
+});
+
+document.getElementById('playFixed').addEventListener('click', () => {
+    // Reset to initial state for B1
+    resetToInitialState(); // Use the same reset logic
+});
+
+// Animation Button Event Listeners B2
+document.getElementById('playTop_B2').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_B2", "Handle_B2", "Handle_Base_B2", "WindowFrame_Spacer_Bar_B2", "Glass_B2"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_B2", "Glass_OuterFrame_Spacer", "Handle_B2_Left", "Handle_B2_Right", "Handle_Base_B2_Left", "Handle_Base_B2_Right", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_B2"];
+    if (handleMesh && "Top_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Top_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Top", ["WindowFrame_B2", "WindowFrame_Spacer_Bar_B2", "Handle_B2", "Handle_Base_B2", "Glass_B2", "B2"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Top_Rotation shape key not found for Handle_B2");
+    }
+});
+
+document.getElementById('playLeft_B2').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_B2", "Handle_B2_Left", "Handle_Base_B2_Left", "WindowFrame_Spacer_Bar_B2", "Glass_B2"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_B2", "Glass_OuterFrame_Spacer", "Handle_B2", "Handle_Base_B2", "Handle_B2_Right", "Handle_Base_B2_Right", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_B2_Left"];
+    if (handleMesh && "Left_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Left_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Left", ["WindowFrame_B2", "WindowFrame_Spacer_Bar_B2", "Handle_B2_Left", "Handle_Base_B2_Left", "Glass_B2", "B2"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Left_Rotation shape key not found for Handle_B2_Left");
+    }
+});
+
+document.getElementById('playRight_B2').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_B2", "Handle_B2_Right", "Handle_Base_B2_Right", "WindowFrame_Spacer_Bar_B2", "Glass_B2"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_B2", "Glass_OuterFrame_Spacer", "Handle_B2_Left", "Handle_Base_B2_Left", "Handle_B2", "Handle_Base_B2", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_B2_Right"];
+    if (handleMesh && "Right_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Right_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Right", ["WindowFrame_B2", "WindowFrame_Spacer_Bar_B2", "Handle_B2_Right", "Handle_Base_B2_Right", "Glass_B2", "B2"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Right_Rotation shape key not found for Handle_B2_Right");
+    }
+});
+
+document.getElementById('playFixed').addEventListener('click', () => {
+    resetToInitialState(); // Reset to initial state for B2
+});
+
+// Animation Button Event Listeners B2
+document.getElementById('playTop_C1').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_C1", "Handle_C1", "Handle_Base_C1", "WindowFrame_Spacer_Bar_C1", "Glass_C1"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_C1", "Glass_OuterFrame_Spacer", "Handle_C1_Left", "Handle_C1_Right", "Handle_Base_C1_Left", "Handle_Base_C1_Right", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_C1"];
+    if (handleMesh && "Top_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Top_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Top", ["WindowFrame_C1", "WindowFrame_Spacer_Bar_C1", "Handle_C1", "Handle_Base_C1", "Glass_C1", "C1"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Top_Rotation shape key not found for Handle_C1");
+    }
+});
+
+document.getElementById('playLeft_C1').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_C1", "Handle_C1_Left", "Handle_Base_C1_Left", "WindowFrame_Spacer_Bar_C1", "Glass_C1"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_C1", "Glass_OuterFrame_Spacer", "Handle_C1", "Handle_Base_C1", "Handle_C1_Right", "Handle_Base_C1_Right", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_C1_Left"];
+    if (handleMesh && "Left_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Left_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Left", ["WindowFrame_C1", "WindowFrame_Spacer_Bar_C1", "Handle_C1_Left", "Handle_Base_C1_Left", "Glass_C1", "C1"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Left_Rotation shape key not found for Handle_C1_Left");
+    }
+});
+
+document.getElementById('playRight_C1').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_C1", "Handle_C1_Right", "Handle_Base_C1_Right", "WindowFrame_Spacer_Bar_C1", "Glass_C1"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_C1", "Glass_OuterFrame_Spacer", "Handle_C1_Left", "Handle_Base_C1_Left", "Handle_C1", "Handle_Base_C1", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_C1_Right"];
+    if (handleMesh && "Right_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Right_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Right", ["WindowFrame_C1", "WindowFrame_Spacer_Bar_C1", "Handle_C1_Right", "Handle_Base_C1_Right", "Glass_C1", "C1"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Right_Rotation shape key not found for Handle_C1_Right");
+    }
+});
+
+document.getElementById('playFixed').addEventListener('click', () => {
+    resetToInitialState(); // Reset to initial state for B2
+});
+
+// Animation Button Event Listeners C2
+document.getElementById('playTop_C2').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_C2", "Handle_C2", "Handle_Base_C2", "WindowFrame_Spacer_Bar_C2", "Glass_C2"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_C2", "Glass_OuterFrame_Spacer", "Handle_C2_Left", "Handle_C2_Right", "Handle_Base_C2_Left", "Handle_Base_C2_Right", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_C2"];
+    if (handleMesh && "Top_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Top_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Top", ["WindowFrame_C2", "WindowFrame_Spacer_Bar_C2", "Handle_C2", "Handle_Base_C2", "Glass_C2", "C2"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Top_Rotation shape key not found for Handle_C2");
+    }
+});
+
+document.getElementById('playLeft_C2').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_C2", "Handle_C2_Left", "Handle_Base_C2_Left", "WindowFrame_Spacer_Bar_C2", "Glass_C2"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_C2", "Glass_OuterFrame_Spacer", "Handle_C2", "Handle_Base_C2", "Handle_C2_Right", "Handle_Base_C2_Right", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_C2_Left"];
+    if (handleMesh && "Left_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Left_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Left", ["WindowFrame_C2", "WindowFrame_Spacer_Bar_C2", "Handle_C2_Left", "Handle_Base_C2_Left", "Glass_C2", "C2"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Left_Rotation shape key not found for Handle_C2_Left");
+    }
+});
+
+document.getElementById('playRight_C2').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_C2", "Handle_C2_Right", "Handle_Base_C2_Right", "WindowFrame_Spacer_Bar_C2", "Glass_C2"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_C2", "Glass_OuterFrame_Spacer", "Handle_C2_Left", "Handle_Base_C2_Left", "Handle_C2", "Handle_Base_C2", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_C2_Right"];
+    if (handleMesh && "Right_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Right_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Right", ["WindowFrame_C2", "WindowFrame_Spacer_Bar_C2", "Handle_C2_Right", "Handle_Base_C2_Right", "Glass_C2", "C2"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Right_Rotation shape key not found for Handle_C2_Right");
+    }
+});
+
+document.getElementById('playFixed').addEventListener('click', () => {
+    resetToInitialState();
+});
+
+// Animation Button Event Listeners D1
+document.getElementById('playTop_D1').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_D1", "Handle_D1", "Handle_Base_D1", "WindowFrame_Spacer_Bar_D1", "Glass_D1"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_D1", "Glass_OuterFrame_Spacer", "Handle_D1_Left", "Handle_D1_Right", "Handle_Base_D1_Left", "Handle_Base_D1_Right", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_D1"];
+    if (handleMesh && "Top_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Top_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Top", ["WindowFrame_D1", "WindowFrame_Spacer_Bar_D1", "Handle_D1", "Handle_Base_D1", "Glass_D1", "D1"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Top_Rotation shape key not found for Handle_D1");
+    }
+});
+
+document.getElementById('playLeft_D1').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_D1", "Handle_D1_Left", "Handle_Base_D1_Left", "WindowFrame_Spacer_Bar_D1", "Glass_D1"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_D1", "Glass_OuterFrame_Spacer", "Handle_D1", "Handle_Base_D1", "Handle_D1_Right", "Handle_Base_D1_Right", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_D1_Left"];
+    if (handleMesh && "Left_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Left_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Left", ["WindowFrame_D1", "WindowFrame_Spacer_Bar_D1", "Handle_D1_Left", "Handle_Base_D1_Left", "Glass_D1", "D1"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Left_Rotation shape key not found for Handle_D1_Left");
+    }
+});
+
+document.getElementById('playRight_D1').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_D1", "Handle_D1_Right", "Handle_Base_D1_Right", "WindowFrame_Spacer_Bar_D1", "Glass_D1"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_D1", "Glass_OuterFrame_Spacer", "Handle_D1_Left", "Handle_Base_D1_Left", "Handle_D1", "Handle_Base_D1", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_D1_Right"];
+    if (handleMesh && "Right_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Right_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Right", ["WindowFrame_D1", "WindowFrame_Spacer_Bar_D1", "Handle_D1_Right", "Handle_Base_D1_Right", "Glass_D1", "D1"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Right_Rotation shape key not found for Handle_D1_Right");
+    }
+});
+
+document.getElementById('playFixed').addEventListener('click', () => {
+    resetToInitialState();
+});
+
+// Animation Button Event Listeners D2
+document.getElementById('playTop_D2').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_D2", "Handle_D2", "Handle_Base_D2", "WindowFrame_Spacer_Bar_D2", "Glass_D2"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_D2", "Glass_OuterFrame_Spacer", "Handle_D2_Left", "Handle_D2_Right", "Handle_Base_D2_Left", "Handle_Base_D2_Right", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_D2"];
+    if (handleMesh && "Top_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Top_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Top", ["WindowFrame_D2", "WindowFrame_Spacer_Bar_D2", "Handle_D2", "Handle_Base_D2", "Glass_D2", "D2"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Top_Rotation shape key not found for Handle_D2");
+    }
+});
+
+document.getElementById('playLeft_D2').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_D2", "Handle_D2_Left", "Handle_Base_D2_Left", "WindowFrame_Spacer_Bar_D2", "Glass_D2"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_D2", "Glass_OuterFrame_Spacer", "Handle_D2", "Handle_Base_D2", "Handle_D2_Right", "Handle_Base_D2_Right", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_D2_Left"];
+    if (handleMesh && "Left_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Left_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Left", ["WindowFrame_D2", "WindowFrame_Spacer_Bar_D2", "Handle_D2_Left", "Handle_Base_D2_Left", "Glass_D2", "D2"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Left_Rotation shape key not found for Handle_D2_Left");
+    }
+});
+
+document.getElementById('playRight_D2').addEventListener('click', () => {
+    showMeshesForAnimation(["WindowFrame_D2", "Handle_D2_Right", "Handle_Base_D2_Right", "WindowFrame_Spacer_Bar_D2", "Glass_D2"]);
+    hideMeshesForAnimation(["Glass_OuterFrame_D2", "Glass_OuterFrame_Spacer", "Handle_D2_Left", "Handle_Base_D2_Left", "Handle_D2", "Handle_Base_D2", "Glass_Spacer"]);
+
+    const handleMesh = morphTargets["Handle_D2_Right"];
+    if (handleMesh && "Right_Rotation" in handleMesh.morphKeys) {
+        const rotationIndex = handleMesh.morphKeys["Right_Rotation"];
+        animateHandleRotation(handleMesh, rotationIndex, 0, 1, () => {
+            playShapeKeyAnimation("Right", ["WindowFrame_D2", "WindowFrame_Spacer_Bar_D2", "Handle_D2_Right", "Handle_Base_D2_Right", "Glass_D2", "D2"], () => {
+                animateHandleRotation(handleMesh, rotationIndex, 1, 0);
+            });
+        });
+    } else {
+        console.error("Right_Rotation shape key not found for Handle_D2_Right");
+    }
+});
+
+document.getElementById('playFixed').addEventListener('click', () => {
+    resetToInitialState();
+});
+
+// Function to reset only the selected window to Fixed state
+function playFixedWindow(panelName) {
+    const visibleMeshes = [ 
+        `Glass_OuterFrame_${panelName}`, 
+        `Glass_OuterFrame_Spacer`
+    ];
+    
+    const hiddenMeshes = [
+        `WindowFrame_${panelName}`, `Glass_${panelName}`, `Handle_${panelName}`, `Handle_${panelName}_Left`, `Handle_${panelName}_Right`,
+        `Handle_Base_${panelName}`, `Handle_Base_${panelName}_Left`, `Handle_Base_${panelName}_Right`,
+        `WindowFrame_Spacer_Bar_${panelName}`, `Glass_Spacer`
+    ];
+    
+    // Show fixed window parts
+    showMeshesForAnimation(visibleMeshes);
+    
+    // Hide interactive elements
+    hideMeshesForAnimation(hiddenMeshes);
+    
+    // Update scene
+    renderer.render(scene, camera);
+}
+
+// Attach playFixed event listeners to each window button
+const fixedButtons = [
+    "A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2"
+];
+
+fixedButtons.forEach(panel => {
+    const button = document.getElementById(`playFixed_${panel}`);
+    if (button) {
+        button.addEventListener('click', () => playFixedWindow(panel));
+    }
+});
+
+        function onWindowResize() {
+            camera.aspect = 1920 / 600;
+            camera.updateProjectionMatrix();
+            renderer.setSize(1920, 600);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            if (mixer) mixer.update(0.016);
+            renderer.render(scene, camera);
+        }
+
+let storedMullionValue = 0; // Add this variable at the top to store mullion value
+let storedTransomValue = 0; // Add this variable at the top to store transom value
+
+let storedShapeKeyValues = {}; // Store previous values to prevent unintended resets
+
+function adjustShapeKeys(type, value) {
+    if (!morphTargets || typeof morphTargets !== "object") {
+        console.error("morphTargets is not defined or not an object.");
+        return;
+    }
+
+    Object.keys(morphTargets).forEach((meshName) => {
+        const target = morphTargets[meshName];
+
+        if (!target || !target.mesh || !target.morphKeys) {
+            console.warn(`Missing data for mesh: ${meshName}`);
+            return;
+        }
+
+        Object.keys(target.morphKeys).forEach((morphKey) => {
+            let shouldUpdate = false; // Track if this shape key should update
+
+            const keyTypeMap = {
+                "width": "Width",
+                "height": "Height",
+                "mullionLeftA": "Mullion_Left_A",
+                "mullionRightA": "Mullion_Right_A",
+                "mullionLeftB": "Mullion_Left_B",
+                "mullionRightB": "Mullion_Right_B",
+                "mullionLeftC": "Mullion_Left_C",
+                "mullionRightC": "Mullion_Right_C",
+                "transomUp": "Transom_Up",
+                "transomDown": "Transom_Down"
+            };
+
+            if (keyTypeMap[type] && morphKey.includes(keyTypeMap[type])) {
+                shouldUpdate = true;
+            }
+
+            if (shouldUpdate) {
+                let keyIdentifier = `${meshName}_${morphKey}`;
+
+                if (target.morphKeys[morphKey] === undefined) {
+                    console.warn(`Morph Key is undefined for: ${morphKey} on ${meshName}`);
+                    return;
+                }
+
+                // Avoid redundant updates
+                if (storedShapeKeyValues[keyIdentifier] !== value) {
+                    target.mesh.morphTargetInfluences[target.morphKeys[morphKey]] = value;
+                    storedShapeKeyValues[keyIdentifier] = value;
+                    console.log(`Updated: ${meshName} - ${morphKey} to ${value}`);
+                }
+            }
+        });
+    });
+
+    if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+    } else {
+        console.error("Renderer, Scene, or Camera is not defined.");
+    }
+}
+
+function playShapeKeyAnimation(keyName, meshNames, callback) {
+    const targets = meshNames.map(meshName => morphTargets[meshName]).filter(target => target && keyName in target.morphKeys);
+    if (targets.length === 0) return;
+
+    let duration = 2000;
+    let startTime = Date.now();
+
+    function animateShapeKey() {
+        let elapsedTime = Date.now() - startTime;
+        let progress = elapsedTime / duration;
+
+        targets.forEach(target => {
+            let keyIndex = target.morphKeys[keyName];
+            if (progress < 0.5) {
+                target.mesh.morphTargetInfluences[keyIndex] = 2 * progress;
+            } else if (progress < 1) {
+                target.mesh.morphTargetInfluences[keyIndex] = 2 * (1 - progress);
             } else {
-                module.classList.add('hidden');
+                target.mesh.morphTargetInfluences[keyIndex] = 0;
+            }
+        });
+
+        if (progress < 1) {
+            requestAnimationFrame(animateShapeKey);
+        } else {
+            // Restore all shape key values after animation completes
+            Object.keys(storedShapeKeyValues).forEach((key) => {
+                const [meshName, morphKey] = key.split("_");
+                if (morphTargets[meshName] && morphTargets[meshName].morphKeys[morphKey]) {
+                    morphTargets[meshName].mesh.morphTargetInfluences[morphTargets[meshName].morphKeys[morphKey]] = storedShapeKeyValues[key];
+                }
+            });
+
+            renderer.render(scene, camera); // Refresh scene
+
+            if (callback) callback();
+        }
+    }
+
+    requestAnimationFrame(animateShapeKey);
+}
+
+function animateHandleRotation(handleMesh, rotationIndex, startValue, endValue, callback) {
+    let duration = 1000; // Adjust duration as needed
+    let startTime = Date.now();
+
+    function animateRotation() {
+        let elapsedTime = Date.now() - startTime;
+        let progress = Math.min(elapsedTime / duration, 1); // Ensure progress reaches exactly 1
+
+        handleMesh.mesh.morphTargetInfluences[rotationIndex] = THREE.MathUtils.lerp(startValue, endValue, progress);
+
+        if (progress < 1) {
+            requestAnimationFrame(animateRotation);
+        } else {
+            handleMesh.mesh.morphTargetInfluences[rotationIndex] = endValue; // Ensure exact final value
+            console.log(`Handle completed rotation to ${endValue}`);
+
+            if (callback) {
+                setTimeout(callback, 100); // Small delay to ensure smooth animation flow
             }
         }
+    }
+
+    requestAnimationFrame(animateRotation);
+}
+
+function completeHandleRotation(handleMesh, rotationIndex) {
+    let duration = 1000;
+    let startTime = Date.now();
+
+    function animateRotation() {
+        let elapsedTime = Date.now() - startTime;
+        let progress = Math.min(elapsedTime / duration, 1); // Ensure progress reaches exactly 1
+
+        handleMesh.mesh.morphTargetInfluences[rotationIndex] = THREE.MathUtils.lerp(1, 0, progress); // Close handle smoothly
+
+        if (progress < 1) {
+            requestAnimationFrame(animateRotation);
+        } else {
+            handleMesh.mesh.morphTargetInfluences[rotationIndex] = 0; // Snap handle to closed position
+            console.log("Handle fully closed!");
+        }
+    }
+
+    requestAnimationFrame(animateRotation);
+}
+
+async function selectVariant(scene, parser, extension, variantName, meshNames) {
+    const variantIndex = extension.variants.findIndex((v) => v.name === variantName);
+    if (variantIndex === -1) {
+        console.error(`Variant '${variantName}' not found.`);
+        return;
+    }
+
+    scene.traverse(async (object) => {
+        if (!object.isMesh || !object.userData.gltfExtensions) return;
+        if (meshNames && !meshNames.includes(object.name)) return;
+
+        const meshVariantDef = object.userData.gltfExtensions['KHR_materials_variants'];
+        if (!meshVariantDef) return;
+
+        // Find the correct mapping for the selected variant
+        const mapping = meshVariantDef.mappings.find((mapping) => mapping.variants.includes(variantIndex));
+
+        if (mapping) {
+            try {
+                // Retrieve the new material for the variant
+                const newMaterial = await parser.getDependency('material', mapping.material);
+
+                // Apply properties specific to glass materials
+                if (object.name.includes("Glass") || object.name.includes("Glass_OuterFrame")) {
+                    // Enable refraction
+                    newMaterial.transparent = true;
+                    newMaterial.opacity = 1.5; // Adjust this value to control opacity (0: fully transparent, 1: fully opaque)
+                    newMaterial.transmission = 0.9; // Enables refraction
+                    newMaterial.ior = 1.45; // Index of Refraction
+
+                    // Set the environment map for reflections and refractions
+                    if (scene.environment) {
+                        newMaterial.envMap = scene.environment;
+                        newMaterial.envMapIntensity = 1.0; // Adjust the intensity
+                    }
+
+                    // Set roughness and metalness for glass appearance
+                    newMaterial.roughness = 1.0;
+                    newMaterial.metalness = 0.0;
+
+                    // Enable and apply diffuse texture
+                    if (newMaterial.map) {
+                        newMaterial.map.needsUpdate = true; // Ensure texture is updated
+                        newMaterial.alphaMap = newMaterial.map; // Use the texture’s alpha map if it has transparency
+                        newMaterial.transparent = true; // Enable transparency if the texture has an alpha channel
+                    }
+
+                    // Additional properties for handling transparency
+                    newMaterial.depthWrite = false; // Prevent z-buffer conflicts for transparent materials
+
+                    newMaterial.needsUpdate = true;
+                } else {
+                    // Handle non-glass materials
+                    newMaterial.transparent = false;
+                    newMaterial.depthWrite = true;
+                }
+
+                // Assign the new material to the object
+                object.material = newMaterial;
+                parser.assignFinalMaterial(object); // Ensure extensions are applied
+                object.material.needsUpdate = true;
+
+                console.log(`Assigned new material to ${object.name}:`, newMaterial);
+            } catch (error) {
+                console.error(`Error assigning material for ${object.name}:`, error);
+            }
+        } else {
+            // Revert to the original material if no mapping is found for the variant
+            if (object.userData.originalMaterial) {
+                object.material = object.userData.originalMaterial;
+                object.material.needsUpdate = true;
+                console.log(`Reverted to original material for ${object.name}`);
+            }
+        }
+
+        // Re-render the scene
+        renderer.render(scene, camera);
+    });
+}
+
+function enableMorphTargets(model) {
+  model.traverse((child) => {
+    if (child.isMesh && child.material) {
+      child.material.morphTargets = true;
+      child.material.morphNormals = true;
+
+      // Ensure defines exist
+      if (!child.material.defines) child.material.defines = {};
+
+      // Set the number of morph targets and normals you need
+      child.material.defines.NUM_MORPH_TARGETS = 8;   // Increase as needed
+      child.material.defines.NUM_MORPH_NORMALS = 8;   // Increase if using morph normals
+
+      child.material.needsUpdate = true; // Ensure the material updates
+    }
+  });
+}
+
+
+function toggleVisibility(selectedCillName) {
+    // List all cill names to toggle their visibility off
+    const cillNames = ["Cill_150mm", "Cill_225mm", "Cill_180mm", "Cill_85mm"];
+
+    // Hide all cills first
+    cillNames.forEach(cillName => {
+        const cill = model.getObjectByName(cillName);
+        if (cill) cill.visible = false;
+    });
+
+    // Then show only the selected cill
+    const selectedCill = model.getObjectByName(selectedCillName);
+    if (selectedCill) {
+        selectedCill.visible = true;
+    }
+
+    // Re-render the scene
+    renderer.render(scene, camera);
+}
+
+function showMeshesForAnimation(meshNames) {
+    meshNames.forEach(name => {
+        const object = model.getObjectByName(name);
+        if (object) object.visible = true;
+    });
+}
+
+function hideMeshesForAnimation(meshNames) {
+    meshNames.forEach(name => {
+        const object = model.getObjectByName(name);
+        if (object) object.visible = false;
+    });
+}
+
+        function modifyMaterialProperties(model) {
+            model.traverse((child) => {
+                if (child.isMesh && child.material) {
+                    if (child.material.isMeshStandardMaterial || child.material.isMeshPhysicalMaterial) {
+                        child.material.roughness = 0.8; // Reduce reflectivity
+                        child.material.metalness = 0.1;
+                    }
+                }
+            });
+        }
+
+        function setMaterialColor(meshName, hexColor) {
+            const object = model.getObjectByName(meshName);
+            if (object && object.material) {
+                object.material.color.set(hexColor);
+                object.material.needsUpdate = true;
+            }
+        }
+
+        function resetToInitialState() {
+            // Hide all other meshes and show only the initial state meshes
+const visibleMeshes = [
+    "OuterFrame", "Glass_OuterFrame_A1", "Glass_OuterFrame_A2", "Glass_OuterFrame_B1", "Glass_OuterFrame_B2",
+    "Glass_OuterFrame_C1", "Glass_OuterFrame_C2", "Glass_OuterFrame_D1", "Glass_OuterFrame_D2",
+    "Glass_OuterFrame_Spacer", "OuterFrame_Spacer_Bar"
+];
+
+const hiddenMeshes = [
+    "Handle_A1", "Handle_A1_Left", "Handle_A1_Right", "Handle_A2", "Handle_A2_Left", "Handle_A2_Right",
+    "Handle_B1", "Handle_B1_Left", "Handle_B1_Right", "Handle_B2", "Handle_B2_Left", "Handle_B2_Right",
+    "Handle_C1", "Handle_C1_Left", "Handle_C1_Right", "Handle_C2", "Handle_C2_Left", "Handle_C2_Right",
+    "Handle_D1", "Handle_D1_Left", "Handle_D1_Right", "Handle_D2", "Handle_D2_Left", "Handle_D2_Right",
+    "Handle_Base_A1", "Handle_Base_A1_Left", "Handle_Base_A1_Right", "Handle_Base_A2", "Handle_Base_A2_Left", "Handle_Base_A2_Right",
+    "Handle_Base_B1", "Handle_Base_B1_Left", "Handle_Base_B1_Right", "Handle_Base_B2", "Handle_Base_B2_Left", "Handle_Base_B2_Right",
+    "Handle_Base_C1", "Handle_Base_C1_Left", "Handle_Base_C1_Right", "Handle_Base_C2", "Handle_Base_C2_Left", "Handle_Base_C2_Right",
+    "Handle_Base_D1", "Handle_Base_D1_Left", "Handle_Base_D1_Right", "Handle_Base_D2", "Handle_Base_D2_Left", "Handle_Base_D2_Right",
+    "WindowFrame_A1", "WindowFrame_A2", "WindowFrame_B1", "WindowFrame_B2", "WindowFrame_C1", "WindowFrame_C2", "WindowFrame_D1", "WindowFrame_D2",
+    "WindowFrame_Spacer_Bar_A1", "WindowFrame_Spacer_Bar_A2", "WindowFrame_Spacer_Bar_B1", "WindowFrame_Spacer_Bar_B2",
+    "WindowFrame_Spacer_Bar_C1", "WindowFrame_Spacer_Bar_C2", "WindowFrame_Spacer_Bar_D1", "WindowFrame_Spacer_Bar_D2",
+    "Glass_A1", "Glass_A2", "Glass_B1", "Glass_B2", "Glass_C1", "Glass_C2", "Glass_D1", "Glass_D2",
+    "Glass_Spacer_A1", "Glass_Spacer_A2", "Glass_Spacer_B1", "Glass_Spacer_B2", "Glass_Spacer_C1", "Glass_Spacer_C2", "Glass_Spacer_D1", "Glass_Spacer_D2",
+    "A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2",
+    "Cill_225mm", "Cill_150mm", "Cill_180mm", "Cill_85mm"
+];
+
+            showMeshesForAnimation(visibleMeshes);
+            hideMeshesForAnimation(hiddenMeshes);
+
+            renderer.render(scene, camera);
+        }
+
+       function normalizeRange(value, min, max) {
+         return (value - min) / (max - min);
+       }
+
+function normalizePositiveRange(value, min, max) {
+    return (value - min) / (max - min);
+}
+
     </script>
 </body>
 </html>
